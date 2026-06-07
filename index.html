@@ -4,19 +4,22 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>NEWS Akkshu</title>
+    <!-- AdSense Script -->
+    <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-4298712782505661" crossorigin="anonymous"></script>
     <style>
         body { font-family: sans-serif; background: #f4f4f4; text-align: center; margin: 0; padding: 0; }
-        .lang-bar { display: flex; justify-content: center; padding: 15px; gap: 10px; background: #fff; }
+        .lang-bar { display: flex; justify-content: center; padding: 15px; gap: 10px; background: #fff; position: sticky; top: 0; z-index: 1000; }
         button { padding: 10px 20px; cursor: pointer; border: none; background: #d32f2f; color: white; border-radius: 5px; font-weight: bold; }
         header img { width: 200px; cursor: pointer; margin-top: 20px; }
         .news-card { background: white; padding: 20px; margin: 15px auto; max-width: 600px; border-radius: 10px; cursor: pointer; text-align: left; box-shadow: 0 2px 5px rgba(0,0,0,0.1); }
         .news-card h3 { margin: 0; color: #333; }
+        .vid-tag { color: #d32f2f; font-weight: bold; font-size: 12px; margin-top: 5px; }
+        .share-btn { margin-top: 5px; color: #25d366; font-size: 14px; font-weight: bold; }
     </style>
 </head>
 <body>
 
     <div class="lang-bar">
-        <!-- यहाँ 'Hindi', 'English', 'Gujarati' बिल्कुल वैसे ही हैं जैसे Firebase में होने चाहिए -->
         <button onclick="loadNews('Hindi')">Hindi</button>
         <button onclick="loadNews('English')">English</button>
         <button onclick="loadNews('Gujarati')">Gujarati</button>
@@ -26,6 +29,9 @@
         <img src="1000678471.png" id="logo" onclick="logoClick()">
         <h1>NEWS Akkshu</h1>
     </header>
+
+    <!-- AdSense Ad Space -->
+    <ins class="adsbygoogle" style="display:block" data-ad-format="fluid" data-ad-layout-key="-fb+5w+4e-db+86" data-ad-client="ca-pub-4298712782505661" data-ad-slot="YOUR_AD_SLOT_ID"></ins>
 
     <div id="newsContainer"></div>
 
@@ -51,7 +57,6 @@
             const container = document.getElementById('newsContainer');
             container.innerHTML = "<h3>Loading...</h3>";
 
-            // यहाँ हमने कैटेगरी मैचिंग को और मजबूत कर दिया है
             db.collection("allNews").where("category", "==", cat).orderBy("timestamp", "desc").onSnapshot(snapshot => {
                 container.innerHTML = '';
                 if(snapshot.empty) {
@@ -60,16 +65,22 @@
                 }
                 snapshot.forEach(doc => {
                     const d = doc.data();
+                    // यहाँ वीडियो चेक किया गया है
+                    let videoTag = d.videoUrl ? '<div class="vid-tag">▶ Video News</div>' : '';
+                    
                     container.innerHTML += `
                         <div class="news-card" onclick="window.location.href='details.html?id=${doc.id}'">
                             <h3>${d.heading}</h3>
+                            ${videoTag}
+                            <div class="share-btn">Read & Share ➔</div>
                         </div>`;
                 });
             });
         }
 
         window.onload = function() {
-            loadNews('Hindi'); // डिफॉल्ट 'Hindi' के साथ लोड होगा
+            loadNews('Hindi');
+            (adsbygoogle = window.adsbygoogle || []).push({});
         };
     </script>
 </body>
