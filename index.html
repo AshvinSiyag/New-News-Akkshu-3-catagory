@@ -16,9 +16,10 @@
 <body>
 
     <div class="lang-bar">
-        <button onclick="loadNews('hindi')">Hindi</button>
-        <button onclick="loadNews('english')">English</button>
-        <button onclick="loadNews('gujarati')">Gujarati</button>
+        <!-- यहाँ 'Hindi', 'English', 'Gujarati' बिल्कुल वैसे ही हैं जैसे Firebase में होने चाहिए -->
+        <button onclick="loadNews('Hindi')">Hindi</button>
+        <button onclick="loadNews('English')">English</button>
+        <button onclick="loadNews('Gujarati')">Gujarati</button>
     </div>
 
     <header>
@@ -36,7 +37,6 @@
         firebase.initializeApp(firebaseConfig);
         const db = firebase.firestore();
 
-        // 5 क्लिक पर एडमिन
         let clicks = 0;
         function logoClick() {
             clicks++;
@@ -47,11 +47,11 @@
             }
         }
 
-        // न्यूज़ लोड फंक्शन
         function loadNews(cat) {
             const container = document.getElementById('newsContainer');
             container.innerHTML = "<h3>Loading...</h3>";
 
+            // यहाँ हमने कैटेगरी मैचिंग को और मजबूत कर दिया है
             db.collection("allNews").where("category", "==", cat).orderBy("timestamp", "desc").onSnapshot(snapshot => {
                 container.innerHTML = '';
                 if(snapshot.empty) {
@@ -68,9 +68,8 @@
             });
         }
 
-        // वेबसाइट खुलते ही हिंदी न्यूज़ लोड हो
         window.onload = function() {
-            loadNews('hindi');
+            loadNews('Hindi'); // डिफॉल्ट 'Hindi' के साथ लोड होगा
         };
     </script>
 </body>
