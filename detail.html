@@ -2,47 +2,67 @@
 <html lang="gu">
 <head>
     <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>News Details - NEWS Akkshu</title>
     <!-- AdSense Script -->
     <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-4298712782505661" crossorigin="anonymous"></script>
     <style>
-        body { font-family: sans-serif; padding: 20px; line-height: 1.6; }
-        .container { max-width: 800px; margin: 0 auto; }
-        .news-image { width: 100%; border-radius: 8px; }
-        .ad-container { margin: 20px 0; }
+        body { font-family: sans-serif; padding: 20px; line-height: 1.6; background: #f9f9f9; }
+        .container { max-width: 800px; margin: 0 auto; background: white; padding: 20px; border-radius: 10px; box-shadow: 0 2px 5px rgba(0,0,0,0.1); }
+        .news-image { width: 100%; border-radius: 8px; margin-top: 15px; }
+        .ad-container { margin: 20px 0; min-height: 100px; }
     </style>
 </head>
 <body>
-    <div class="container" id="newsContent">Loading...</div>
+    <div class="container" id="newsContent">Loading news...</div>
 
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-firestore.js"></script>
     <script>
-        // Firebase Config (यहाँ अपना Config डालें)
+        // Firebase Config (यहाँ आपका सही कॉन्फ़िगरेशन है)
+        const firebaseConfig = { 
+            apiKey: "AIzaSyAOTuJcjYGPld5wZYVPHK0jpXKAh561lVU",
+            authDomain: "news-akkshu.firebaseapp.com",
+            projectId: "news-akkshu",
+            storageBucket: "news-akkshu.firebasestorage.app",
+            messagingSenderId: "735024392453",
+            appId: "1:735024392453:web:30f8a1f0832ff36b1fef6c" 
+        };
+        
+        firebase.initializeApp(firebaseConfig);
         const db = firebase.firestore();
+        
         const id = new URLSearchParams(window.location.search).get('id');
 
-        db.collection("allNews").doc(id).get().then(doc => {
-            const d = doc.data();
-            document.getElementById('newsContent').innerHTML = `
-                <h1>${d.heading}</h1>
-                <img src="${d.image}" class="news-image">
-                
-                <!-- Ad 1: Headline ke baad -->
-                <div class="ad-container">
-                    <ins class="adsbygoogle" style="display:block" data-ad-format="auto" data-ad-full-width-responsive="true" data-ad-client="ca-pub-4298712782505661"></ins>
-                </div>
+        if (id) {
+            db.collection("allNews").doc(id).get().then(doc => {
+                if (doc.exists) {
+                    const d = doc.data();
+                    document.getElementById('newsContent').innerHTML = `
+                        <h1>${d.heading}</h1>
+                        <img src="${d.image}" class="news-image">
+                        
+                        <div class="ad-container">
+                            <ins class="adsbygoogle" style="display:block" data-ad-format="auto" data-ad-full-width-responsive="true" data-ad-client="ca-pub-4298712782505661"></ins>
+                        </div>
 
-                <p>${d.details}</p>
+                        <p style="white-space: pre-line;">${d.details}</p>
 
-                <!-- Ad 2: News ke ant mein -->
-                <div class="ad-container">
-                    <ins class="adsbygoogle" style="display:block" data-ad-format="auto" data-ad-full-width-responsive="true" data-ad-client="ca-pub-4298712782505661"></ins>
-                </div>
-            `;
-            (adsbygoogle = window.adsbygoogle || []).push({});
-            (adsbygoogle = window.adsbygoogle || []).push({});
-        });
+                        <div class="ad-container">
+                            <ins class="adsbygoogle" style="display:block" data-ad-format="auto" data-ad-full-width-responsive="true" data-ad-client="ca-pub-4298712782505661"></ins>
+                        </div>
+                    `;
+                    (adsbygoogle = window.adsbygoogle || []).push({});
+                    (adsbygoogle = window.adsbygoogle || []).push({});
+                } else {
+                    document.getElementById('newsContent').innerHTML = "<h2>News not found!</h2>";
+                }
+            }).catch(err => {
+                document.getElementById('newsContent').innerHTML = "<h2>Error loading news.</h2>";
+            });
+        } else {
+            document.getElementById('newsContent').innerHTML = "<h2>No News ID provided.</h2>";
+        }
     </script>
 </body>
 </html>
