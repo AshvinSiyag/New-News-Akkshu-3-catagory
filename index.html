@@ -1,44 +1,58 @@
 <!DOCTYPE html>
-<html lang="gu">
+<html lang="hi">
 <head>
     <meta charset="UTF-8">
     <title>NEWS Akkshu</title>
     <style>
-        .lang-bar { display: flex; justify-content: center; padding: 15px; gap: 20px; background: #f8f8f8; }
-        .lang-bar button { padding: 8px 16px; cursor: pointer; border: none; background: #d32f2f; color: white; border-radius: 4px; font-weight: bold; }
-        header { text-align: center; padding: 20px; }
-        header img { width: 250px; cursor: pointer; } /* यहाँ लोगो का साइज़ सेट है */
-        .news-card { background: white; padding: 15px; margin: 10px auto; max-width: 600px; border-radius: 8px; cursor: pointer; box-shadow: 0 2px 5px rgba(0,0,0,0.1); display: flex; align-items: center; gap: 15px; }
+        body { font-family: sans-serif; background: #f4f4f4; text-align: center; }
+        .lang-bar { display: flex; justify-content: center; padding: 15px; gap: 10px; }
+        button { padding: 10px 20px; cursor: pointer; border: none; background: #d32f2f; color: white; border-radius: 5px; }
+        header img { width: 250px; cursor: pointer; margin-top: 20px; }
+        .news-card { background: white; padding: 15px; margin: 10px auto; max-width: 600px; border-radius: 8px; cursor: pointer; text-align: left; }
     </style>
 </head>
 <body>
-
     <div class="lang-bar">
         <button onclick="loadNews('hindi')">Hindi</button>
         <button onclick="loadNews('english')">English</button>
         <button onclick="loadNews('gujarati')">Gujarati</button>
     </div>
-
     <header>
-        <!-- यहाँ आपका लोगो 1000678471.png लगाया गया है -->
-        <img src="1000678471.png" id="logo" onclick="logoClick()" alt="NEWS Akkshu Logo">
+        <img src="1000678471.png" id="logo" onclick="logoClick()">
         <h1>NEWS Akkshu</h1>
     </header>
-
     <div id="newsContainer"></div>
 
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-firestore.js"></script>
     <script>
+        // Firebase Config यहाँ डालें
+        const firebaseConfig = { apiKey: "AIzaSyAOTuJcjYGPld5wZYVPHK0jpXKAh561lVU", authDomain: "news-akkshu.firebaseapp.com", projectId: "news-akkshu", storageBucket: "news-akkshu.firebasestorage.app", messagingSenderId: "735024392453", appId: "1:735024392453:web:30f8a1f0832ff36b1fef6c" };
+        firebase.initializeApp(firebaseConfig);
+        const db = firebase.firestore();
+
         let clicks = 0;
         function logoClick() {
             clicks++;
-            if(clicks === 5) {
-                window.location.href = "admin.html"; // 5 क्लिक पर एडमिन पैनल
+            if (clicks === 5) {
+                let pass = prompt("Enter Admin Password:");
+                if (pass === "Akkshu@love") window.location.href = "admin.html";
+                else { alert("Wrong Password!"); clicks = 0; }
             }
         }
 
         function loadNews(cat) {
-            // यहाँ Firebase से डेटा लोड करने का कोड आएगा
-            document.getElementById('newsContainer').innerHTML = "Loading " + cat + " news...";
+            document.getElementById('newsContainer').innerHTML = "Loading...";
+            db.collection("allNews").where("category", "==", cat).orderBy("timestamp", "desc").onSnapshot(snapshot => {
+                document.getElementById('newsContainer').innerHTML = '';
+                snapshot.forEach(doc => {
+                    const d = doc.data();
+                    document.getElementById('newsContainer').innerHTML += `
+                        <div class="news-card" onclick="window.location.href='details.html?id=${doc.id}'">
+                            <h3>${d.heading}</h3>
+                        </div>`;
+                });
+            });
         }
     </script>
 </body>
