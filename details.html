@@ -3,7 +3,15 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    
+    <!-- WhatsApp और Social Media Preview के लिए मेटा टैग्स -->
+    <meta property="og:title" id="og-title" content="NEWS Akkshu">
+    <meta property="og:description" id="og-desc" content="पूरी खबर पढ़ने के लिए यहाँ क्लिक करें।">
+    <meta property="og:image" id="og-image" content="https://amazybuy.shop/1000678471.png">
+    <meta property="og:type" content="article">
+    
     <title>News Details - NEWS Akkshu</title>
+    
     <!-- AdSense Script -->
     <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-4298712782505661" crossorigin="anonymous"></script>
     <style>
@@ -19,7 +27,6 @@
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-firestore.js"></script>
     <script>
-        // Firebase Config (यहाँ आपका सही कॉन्फ़िगरेशन है)
         const firebaseConfig = { 
             apiKey: "AIzaSyAOTuJcjYGPld5wZYVPHK0jpXKAh561lVU",
             authDomain: "news-akkshu.firebaseapp.com",
@@ -38,6 +45,13 @@
             db.collection("allNews").doc(id).get().then(doc => {
                 if (doc.exists) {
                     const d = doc.data();
+                    
+                    // WhatsApp प्रीव्यू अपडेट करें
+                    document.getElementById('og-title').setAttribute("content", d.heading);
+                    document.getElementById('og-desc').setAttribute("content", d.details.substring(0, 100) + "...");
+                    document.getElementById('og-image').setAttribute("content", d.image);
+                    document.title = d.heading;
+
                     document.getElementById('newsContent').innerHTML = `
                         <h1>${d.heading}</h1>
                         <img src="${d.image}" class="news-image">
