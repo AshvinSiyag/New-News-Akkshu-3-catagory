@@ -12,67 +12,70 @@
     <style>
         body { font-family: sans-serif; padding: 20px; line-height: 1.6; background: #f9f9f9; }
         .container { max-width: 800px; margin: 0 auto; background: white; padding: 20px; border-radius: 10px; box-shadow: 0 2px 5px rgba(0,0,0,0.1); }
+        .logo-header { text-align: center; margin-bottom: 20px; }
+        .logo-header img { width: 150px; cursor: pointer; }
+        .back-btn { display: inline-block; margin-bottom: 20px; padding: 10px 15px; background: #333; color: white; text-decoration: none; border-radius: 5px; }
         .news-image { width: 100%; border-radius: 8px; margin-top: 15px; }
-        .ad-container { margin: 20px 0; min-height: 100px; }
-        .share-btn { background: #25d366; color: white; border: none; padding: 12px; width: 100%; border-radius: 5px; cursor: pointer; font-weight: bold; margin-bottom: 20px; font-size: 16px; }
-        .stats { color: #555; font-size: 14px; margin-top: 5px; }
+        .share-btn { background: #25d366; color: white; border: none; padding: 12px; width: 100%; border-radius: 5px; cursor: pointer; font-weight: bold; margin: 20px 0; font-size: 16px; }
+        .stats { color: #555; font-size: 14px; }
+        .more-news { margin-top: 40px; border-top: 2px solid #ddd; padding-top: 20px; }
+        .more-item { padding: 15px; border-bottom: 1px solid #eee; cursor: pointer; color: #d32f2f; font-weight: bold; }
     </style>
 </head>
 <body>
-    <div class="container" id="newsContent">Loading news...</div>
+    <div class="container">
+        <div class="logo-header">
+            <img src="1000678471.png" onclick="window.location.href='index.html'">
+        </div>
+        <a href="index.html" class="back-btn">← Back</a>
+        
+        <div id="newsContent">Loading news...</div>
+
+        <div class="more-news">
+            <h3>Read More News</h3>
+            <div id="moreNewsList"></div>
+        </div>
+    </div>
 
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-firestore.js"></script>
     <script>
-        const firebaseConfig = { 
-            apiKey: "AIzaSyAOTuJcjYGPld5wZYVPHK0jpXKAh561lVU",
-            authDomain: "news-akkshu.firebaseapp.com",
-            projectId: "news-akkshu",
-            storageBucket: "news-akkshu.firebasestorage.app",
-            messagingSenderId: "735024392453",
-            appId: "1:735024392453:web:30f8a1f0832ff36b1fef6c" 
-        };
-        
+        const firebaseConfig = { apiKey: "AIzaSyAOTuJcjYGPld5wZYVPHK0jpXKAh561lVU", authDomain: "news-akkshu.firebaseapp.com", projectId: "news-akkshu", storageBucket: "news-akkshu.firebasestorage.app", messagingSenderId: "735024392453", appId: "1:735024392453:web:30f8a1f0832ff36b1fef6c" };
         firebase.initializeApp(firebaseConfig);
         const db = firebase.firestore();
         const id = new URLSearchParams(window.location.search).get('id');
 
         if (id) {
             const docRef = db.collection("allNews").doc(id);
-
-            // व्यूज बढ़ाएं
+            // व्यूज अपडेट करें
             docRef.update({ views: firebase.firestore.FieldValue.increment(1) }).catch(() => {});
 
             docRef.get().then(doc => {
                 if (doc.exists) {
                     const d = doc.data();
-                    document.getElementById('og-title').setAttribute("content", d.heading);
-                    document.getElementById('og-desc').setAttribute("content", d.details.substring(0, 100) + "...");
-                    document.getElementById('og-image').setAttribute("content", d.image);
-                    document.title = d.heading;
-
                     document.getElementById('newsContent').innerHTML = `
                         <h1>${d.heading}</h1>
                         <p class="stats">👁️ ${d.views ? d.views + 1 : 1} Views</p>
-                        <img src="${d.image}" class="news-image" alt="News Image">
-                        
-                        <div class="ad-container"><ins class="adsbygoogle" style="display:block" data-ad-format="auto" data-ad-full-width-responsive="true" data-ad-client="ca-pub-4298712782505661"></ins></div>
-                        
+                        <img src="${d.image}" class="news-image">
                         <button class="share-btn" onclick="shareNews()">WhatsApp पर शेयर करें</button>
-
                         <p style="white-space: pre-line;">${d.details}</p>
-
-                        <div class="ad-container"><ins class="adsbygoogle" style="display:block" data-ad-format="auto" data-ad-full-width-responsive="true" data-ad-client="ca-pub-4298712782505661"></ins></div>
                     `;
-                    (adsbygoogle = window.adsbygoogle || []).push({});
-                    (adsbygoogle = window.adsbygoogle || []).push({});
                 }
             });
         }
 
+        // 5 लेटेस्ट न्यूज़
+        db.collection("allNews").orderBy("timestamp", "desc").limit(5).onSnapshot(snapshot => {
+            const list = document.getElementById('moreNewsList');
+            snapshot.forEach(doc => {
+                if(doc.id !== id) {
+                    list.innerHTML += `<div class="more-item" onclick="window.location.href='details.html?id=${doc.id}'">${doc.data().heading}</div>`;
+                }
+            });
+        });
+
         function shareNews() {
-            const text = encodeURIComponent(document.title + "\n\nपूरी खबर यहाँ पढ़ें: " + window.location.href);
-            window.open("https://wa.me/?text=" + text, "_blank");
+            window.open("https://wa.me/?text=" + encodeURIComponent(document.title + "\n\nयहाँ पढ़ें: " + window.location.href), "_blank");
         }
     </script>
 </body>
