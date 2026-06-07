@@ -19,7 +19,6 @@
         .container { max-width: 800px; margin: 0 auto; background: white; padding: 20px; border-radius: 10px; box-shadow: 0 2px 5px rgba(0,0,0,0.1); }
         .news-image { width: 100%; border-radius: 8px; margin-top: 15px; }
         .ad-container { margin: 20px 0; min-height: 100px; }
-        .delete-btn { background: #d32f2f; color: white; border: none; padding: 12px; width: 100%; border-radius: 5px; cursor: pointer; font-weight: bold; margin-top: 20px; }
     </style>
 </head>
 <body>
@@ -66,8 +65,6 @@
                         <div class="ad-container">
                             <ins class="adsbygoogle" style="display:block" data-ad-format="auto" data-ad-full-width-responsive="true" data-ad-client="ca-pub-4298712782505661"></ins>
                         </div>
-
-                        <button class="delete-btn" onclick="deleteNews('${id}')">Delete This News</button>
                     `;
                     // एडसेंस लोड करें
                     (adsbygoogle = window.adsbygoogle || []).push({});
@@ -80,21 +77,6 @@
             });
         } else {
             document.getElementById('newsContent').innerHTML = "<h2>No News ID provided.</h2>";
-        }
-
-        // Delete News Function
-        function deleteNews(newsId) {
-            let pass = prompt("Enter Admin Password to Delete:");
-            if (pass === "Akkshu@love") {
-                db.collection("allNews").doc(newsId).delete().then(() => {
-                    alert("News Deleted Successfully!");
-                    window.location.href = "index.html";
-                }).catch(err => {
-                    alert("Error: " + err.message);
-                });
-            } else if (pass !== null) {
-                alert("Wrong Password!");
-            }
         }
     </script>
 </body>
