@@ -1,33 +1,72 @@
-<form id="newsForm">
-    <input type="text" id="heading" placeholder="Headline" required style="width:100%; margin-bottom:10px;">
-    <input type="text" id="image" placeholder="Image URL" required style="width:100%; margin-bottom:10px;">
-    <!-- नया Video URL फील्ड -->
-    <input type="text" id="video" placeholder="Video URL (Optional)" style="width:100%; margin-bottom:10px;">
-    <textarea id="details" rows="5" placeholder="Full News" required style="width:100%; margin-bottom:10px;"></textarea>
-    
-    <label>Category:</label>
-    <select id="category" style="width:100%; margin-bottom:10px;">
-        <option value="hindi">Hindi</option>
-        <option value="english">English</option>
-        <option value="gujarati">Gujarati</option>
-    </select>
-    
-    <button type="submit">Publish News</button>
-</form>
+<!DOCTYPE html>
+<html lang="hi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Panel - NEWS Akkshu</title>
+    <style>
+        body { font-family: sans-serif; padding: 20px; background-color: #f4f4f4; }
+        .admin-box { max-width: 500px; margin: auto; background: white; padding: 20px; border-radius: 10px; box-shadow: 0 0 10px rgba(0,0,0,0.1); }
+        input, textarea, select { width: 100%; margin-bottom: 15px; padding: 12px; border: 1px solid #ccc; border-radius: 5px; box-sizing: border-box; }
+        button { width: 100%; padding: 15px; background-color: #d32f2f; color: white; border: none; border-radius: 5px; cursor: pointer; font-size: 16px; }
+        button:hover { background-color: #b71c1c; }
+    </style>
+</head>
+<body>
+
+<div class="admin-box">
+    <h2>Admin Panel</h2>
+    <form id="newsForm">
+        <input type="text" id="heading" placeholder="Headline" required>
+        <input type="text" id="image" placeholder="Image URL" required>
+        <input type="text" id="video" placeholder="Video URL (Optional)">
+        <textarea id="details" rows="6" placeholder="Full News" required></textarea>
+        
+        <label>Category:</label>
+        <select id="category">
+            <option value="hindi">Hindi</option>
+            <option value="english">English</option>
+            <option value="gujarati">Gujarati</option>
+        </select>
+        
+        <button type="submit">Publish News</button>
+    </form>
+</div>
+
+<!-- Firebase SDK -->
+<script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
+<script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-firestore.js"></script>
 
 <script>
+    // Firebase Config
+    const firebaseConfig = { 
+        apiKey: "AIzaSyAOTuJcjYGPld5wZYVPHK0jpXKAh561lVU",
+        authDomain: "news-akkshu.firebaseapp.com",
+        projectId: "news-akkshu",
+        storageBucket: "news-akkshu.firebasestorage.app",
+        messagingSenderId: "735024392453",
+        appId: "1:735024392453:web:30f8a1f0832ff36b1fef6c" 
+    };
+    firebase.initializeApp(firebaseConfig);
+    const db = firebase.firestore();
+
+    // Publish Function
     document.getElementById('newsForm').addEventListener('submit', (e) => {
         e.preventDefault();
         db.collection("allNews").add({
             heading: document.getElementById('heading').value,
             image: document.getElementById('image').value,
-            video: document.getElementById('video').value, // वीडियो यूआरएल सेव करना
+            video: document.getElementById('video').value,
             details: document.getElementById('details').value,
             category: document.getElementById('category').value,
             timestamp: firebase.firestore.FieldValue.serverTimestamp()
         }).then(() => {
-            alert("News Published!");
+            alert("News Published Successfully!");
             document.getElementById('newsForm').reset();
+        }).catch((error) => {
+            alert("Error: " + error.message);
         });
     });
 </script>
+</body>
+</html>
