@@ -3,11 +3,8 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta property="og:title" id="og-title" content="NEWS Akkshu">
-    <meta property="og:description" id="og-desc" content="पूरी खबर पढ़ने के लिए यहाँ क्लिक करें।">
-    <meta property="og:image" id="og-image" content="https://amazybuy.shop/1000678471.png">
-    <meta property="og:type" content="article">
     <title>News Details - NEWS Akkshu</title>
+    <!-- AdSense Script -->
     <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-4298712782505661" crossorigin="anonymous"></script>
     <style>
         body { font-family: sans-serif; padding: 20px; line-height: 1.6; background: #f9f9f9; }
@@ -16,6 +13,7 @@
         .logo-header img { width: 150px; cursor: pointer; }
         .back-btn { display: inline-block; margin-bottom: 20px; padding: 10px 15px; background: #333; color: white; text-decoration: none; border-radius: 5px; }
         .news-image { width: 100%; border-radius: 8px; margin-top: 15px; }
+        .ad-container { margin: 20px 0; min-height: 100px; }
         .share-btn { background: #25d366; color: white; border: none; padding: 12px; width: 100%; border-radius: 5px; cursor: pointer; font-weight: bold; margin: 20px 0; font-size: 16px; }
         .stats { color: #555; font-size: 14px; }
         .more-news { margin-top: 40px; border-top: 2px solid #ddd; padding-top: 20px; }
@@ -47,7 +45,6 @@
 
         if (id) {
             const docRef = db.collection("allNews").doc(id);
-            // व्यूज अपडेट करें
             docRef.update({ views: firebase.firestore.FieldValue.increment(1) }).catch(() => {});
 
             docRef.get().then(doc => {
@@ -57,14 +54,21 @@
                         <h1>${d.heading}</h1>
                         <p class="stats">👁️ ${d.views ? d.views + 1 : 1} Views</p>
                         <img src="${d.image}" class="news-image">
+                        
+                        <div class="ad-container"><ins class="adsbygoogle" style="display:block" data-ad-format="auto" data-ad-full-width-responsive="true" data-ad-client="ca-pub-4298712782505661"></ins></div>
+                        
                         <button class="share-btn" onclick="shareNews()">WhatsApp पर शेयर करें</button>
-                        <p style="white-space: pre-line;">${d.details}</p>
+
+                        <p style="white-space: pre-line; margin-top:20px;">${d.details}</p>
+
+                        <div class="ad-container"><ins class="adsbygoogle" style="display:block" data-ad-format="auto" data-ad-full-width-responsive="true" data-ad-client="ca-pub-4298712782505661"></ins></div>
                     `;
+                    (adsbygoogle = window.adsbygoogle || []).push({});
+                    (adsbygoogle = window.adsbygoogle || []).push({});
                 }
             });
         }
 
-        // 5 लेटेस्ट न्यूज़
         db.collection("allNews").orderBy("timestamp", "desc").limit(5).onSnapshot(snapshot => {
             const list = document.getElementById('moreNewsList');
             snapshot.forEach(doc => {
