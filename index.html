@@ -2,35 +2,41 @@
 <html lang="hi">
 <head>
     <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>NEWS Akkshu</title>
     <style>
-        body { font-family: sans-serif; background: #f4f4f4; text-align: center; }
-        .lang-bar { display: flex; justify-content: center; padding: 15px; gap: 10px; }
-        button { padding: 10px 20px; cursor: pointer; border: none; background: #d32f2f; color: white; border-radius: 5px; }
-        header img { width: 250px; cursor: pointer; margin-top: 20px; }
-        .news-card { background: white; padding: 15px; margin: 10px auto; max-width: 600px; border-radius: 8px; cursor: pointer; text-align: left; }
+        body { font-family: sans-serif; background: #f4f4f4; text-align: center; margin: 0; padding: 0; }
+        .lang-bar { display: flex; justify-content: center; padding: 15px; gap: 10px; background: #fff; }
+        button { padding: 10px 20px; cursor: pointer; border: none; background: #d32f2f; color: white; border-radius: 5px; font-weight: bold; }
+        header img { width: 200px; cursor: pointer; margin-top: 20px; }
+        .news-card { background: white; padding: 20px; margin: 15px auto; max-width: 600px; border-radius: 10px; cursor: pointer; text-align: left; box-shadow: 0 2px 5px rgba(0,0,0,0.1); }
+        .news-card h3 { margin: 0; color: #333; }
     </style>
 </head>
 <body>
+
     <div class="lang-bar">
         <button onclick="loadNews('hindi')">Hindi</button>
         <button onclick="loadNews('english')">English</button>
         <button onclick="loadNews('gujarati')">Gujarati</button>
     </div>
+
     <header>
         <img src="1000678471.png" id="logo" onclick="logoClick()">
         <h1>NEWS Akkshu</h1>
     </header>
+
     <div id="newsContainer"></div>
 
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-firestore.js"></script>
+    
     <script>
-        // Firebase Config यहाँ डालें
         const firebaseConfig = { apiKey: "AIzaSyAOTuJcjYGPld5wZYVPHK0jpXKAh561lVU", authDomain: "news-akkshu.firebaseapp.com", projectId: "news-akkshu", storageBucket: "news-akkshu.firebasestorage.app", messagingSenderId: "735024392453", appId: "1:735024392453:web:30f8a1f0832ff36b1fef6c" };
         firebase.initializeApp(firebaseConfig);
         const db = firebase.firestore();
 
+        // 5 क्लिक पर एडमिन
         let clicks = 0;
         function logoClick() {
             clicks++;
@@ -41,19 +47,31 @@
             }
         }
 
+        // न्यूज़ लोड फंक्शन
         function loadNews(cat) {
-            document.getElementById('newsContainer').innerHTML = "Loading...";
+            const container = document.getElementById('newsContainer');
+            container.innerHTML = "<h3>Loading...</h3>";
+
             db.collection("allNews").where("category", "==", cat).orderBy("timestamp", "desc").onSnapshot(snapshot => {
-                document.getElementById('newsContainer').innerHTML = '';
+                container.innerHTML = '';
+                if(snapshot.empty) {
+                    container.innerHTML = "<h3>No news in this category yet!</h3>";
+                    return;
+                }
                 snapshot.forEach(doc => {
                     const d = doc.data();
-                    document.getElementById('newsContainer').innerHTML += `
+                    container.innerHTML += `
                         <div class="news-card" onclick="window.location.href='details.html?id=${doc.id}'">
                             <h3>${d.heading}</h3>
                         </div>`;
                 });
             });
         }
+
+        // वेबसाइट खुलते ही हिंदी न्यूज़ लोड हो
+        window.onload = function() {
+            loadNews('hindi');
+        };
     </script>
 </body>
 </html>
