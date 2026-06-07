@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="gu">
+<head>
+    <meta charset="UTF-8">
+    <title>News Details - NEWS Akkshu</title>
+    <!-- AdSense Script -->
+    <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-4298712782505661" crossorigin="anonymous"></script>
+    <style>
+        body { font-family: sans-serif; padding: 20px; line-height: 1.6; }
+        .container { max-width: 800px; margin: 0 auto; }
+        .news-image { width: 100%; border-radius: 8px; }
+        .ad-container { margin: 20px 0; }
+    </style>
+</head>
+<body>
+    <div class="container" id="newsContent">Loading...</div>
+
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-firestore.js"></script>
+    <script>
+        // Firebase Config (यहाँ अपना Config डालें)
+        const db = firebase.firestore();
+        const id = new URLSearchParams(window.location.search).get('id');
+
+        db.collection("allNews").doc(id).get().then(doc => {
+            const d = doc.data();
+            document.getElementById('newsContent').innerHTML = `
+                <h1>${d.heading}</h1>
+                <img src="${d.image}" class="news-image">
+                
+                <!-- Ad 1: Headline ke baad -->
+                <div class="ad-container">
+                    <ins class="adsbygoogle" style="display:block" data-ad-format="auto" data-ad-full-width-responsive="true" data-ad-client="ca-pub-4298712782505661"></ins>
+                </div>
+
+                <p>${d.details}</p>
+
+                <!-- Ad 2: News ke ant mein -->
+                <div class="ad-container">
+                    <ins class="adsbygoogle" style="display:block" data-ad-format="auto" data-ad-full-width-responsive="true" data-ad-client="ca-pub-4298712782505661"></ins>
+                </div>
+            `;
+            (adsbygoogle = window.adsbygoogle || []).push({});
+            (adsbygoogle = window.adsbygoogle || []).push({});
+        });
+    </script>
+</body>
+</html>
