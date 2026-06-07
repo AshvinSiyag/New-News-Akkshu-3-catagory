@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     
-    <!-- WhatsApp और Social Media Preview के लिए मेटा टैग्स -->
+    <!-- WhatsApp और सोशल मीडिया प्रीव्यू -->
     <meta property="og:title" id="og-title" content="NEWS Akkshu">
     <meta property="og:description" id="og-desc" content="पूरी खबर पढ़ने के लिए यहाँ क्लिक करें।">
     <meta property="og:image" id="og-image" content="https://amazybuy.shop/1000678471.png">
@@ -47,7 +47,7 @@
                 if (doc.exists) {
                     const d = doc.data();
                     
-                    // WhatsApp प्रीव्यू अपडेट करें
+                    // WhatsApp/Social Media के लिए मेटा टैग्स अपडेट करें
                     document.getElementById('og-title').setAttribute("content", d.heading);
                     document.getElementById('og-desc').setAttribute("content", d.details.substring(0, 100) + "...");
                     document.getElementById('og-image').setAttribute("content", d.image);
@@ -55,7 +55,7 @@
 
                     document.getElementById('newsContent').innerHTML = `
                         <h1>${d.heading}</h1>
-                        <img src="${d.image}" class="news-image">
+                        <img src="${d.image}" class="news-image" alt="News Image">
                         
                         <div class="ad-container">
                             <ins class="adsbygoogle" style="display:block" data-ad-format="auto" data-ad-full-width-responsive="true" data-ad-client="ca-pub-4298712782505661"></ins>
@@ -69,6 +69,7 @@
 
                         <button class="delete-btn" onclick="deleteNews('${id}')">Delete This News</button>
                     `;
+                    // एडसेंस लोड करें
                     (adsbygoogle = window.adsbygoogle || []).push({});
                     (adsbygoogle = window.adsbygoogle || []).push({});
                 } else {
@@ -91,7 +92,7 @@
                 }).catch(err => {
                     alert("Error: " + err.message);
                 });
-            } else {
+            } else if (pass !== null) {
                 alert("Wrong Password!");
             }
         }
