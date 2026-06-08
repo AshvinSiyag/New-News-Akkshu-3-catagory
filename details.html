@@ -4,13 +4,11 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>News Details - NEWS Akkshu</title>
-    <!-- WhatsApp & Social Media Meta Tags -->
     <meta property="og:type" content="article">
     <meta property="og:title" id="og-title" content="NEWS Akkshu">
     <meta property="og:description" id="og-desc" content="पूरी खबर पढ़ने के लिए यहाँ क्लिक करें।">
     <meta property="og:image" id="og-image" content="https://amazybuy.shop/1000678471.png">
     
-    <!-- AdSense Script -->
     <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-4298712782505661" crossorigin="anonymous"></script>
     <style>
         body { font-family: sans-serif; padding: 20px; line-height: 1.6; background: #f9f9f9; }
@@ -57,65 +55,52 @@
 
         if (id) {
             const docRef = db.collection("allNews").doc(id);
-            docRef.update({ views: firebase.firestore.FieldValue.increment(1) }).catch(() => {});
-
             docRef.get().then(doc => {
                 if (doc.exists) {
                     const d = doc.data();
-                    document.title = d.heading;
-                    document.getElementById('og-title').setAttribute('content', d.heading);
-                    document.getElementById('og-desc').setAttribute('content', d.details.substring(0, 100) + "...");
-                    document.getElementById('og-image').setAttribute('content', d.image);
                     
-                    // 2 फिक्स एड्स + पैनल से चुनी हुई एड्स लॉजिक
-                    let adsHtml = createAd() + createAd(); 
+                    // 1. फिक्स एड्स
+                    let topFixAd = createAd(); 
+                    let bottomFixAd = createAd();
+                    
+                    // 2. एक्स्ट्रा एड्स (अगर चुनी गई हैं)
+                    let extraAds = [];
                     if (d.adOption === "banner" || d.adOption === "all") {
-                        let extraCount = parseInt(d.adCount) || 0;
-                        for(let i = 0; i < extraCount; i++) {
-                            adsHtml += createAd();
-                        }
-                    }
-                    
-                    // अगर Video Ads सिलेक्टेड हैं
-                    if (d.adOption === "video" || d.adOption === "all") {
-                        adsHtml += `<div class="ad-container" style="border: 1px dashed #ccc; padding: 20px;">Video Ad Space (VAST Tag Required)</div>`;
+                        let count = parseInt(d.adCount) || 0;
+                        for(let i = 0; i < count; i++) { extraAds.push(createAd()); }
                     }
 
-                    let videoHtml = d.videoUrl ? `
-                        <div class="video-container">
-                            <iframe src="${d.videoUrl.replace('watch?v=', 'embed/')}" frameborder="0" allowfullscreen></iframe>
-                        </div>` : '';
+                    // 3. लेआउट सेट करना
+                    let contentBody = `<p style="white-space: pre-line; margin-top:20px;">${d.details}</p>`;
+                    
+                    // अगर एक्स्ट्रा एड्स हैं, तो उन्हें न्यूज़ के बीच में जोड़ें
+                    if (extraAds.length > 0) {
+                        let parts = d.details.split('\n\n'); // पैराग्राफ के हिसाब से तोड़ें
+                        let mid = Math.floor(parts.length / 2);
+                        
+                        let htmlDetails = "";
+                        parts.forEach((p, index) => {
+                            htmlDetails += `<p>${p}</p>`;
+                            if (index === 0 && extraAds[0]) htmlDetails += extraAds[0]; // पहला एड
+                            if (index === mid && extraAds[1]) htmlDetails += extraAds[1]; // बीच वाला एड
+                            if (index === parts.length - 1 && extraAds[2]) htmlDetails += extraAds[2]; // तीसरा एड
+                        });
+                        contentBody = htmlDetails;
+                    }
 
                     document.getElementById('newsContent').innerHTML = `
                         <h1>${d.heading}</h1>
-                        <p class="stats">👁️ Views: ${d.views ? d.views + 1 : 1}</p>
+                        ${topFixAd}
                         <img src="${d.image}" class="news-image">
-                        ${videoHtml}
-                        ${adsHtml}
-                        <button class="share-btn" onclick="shareNews()">WhatsApp पर शेयर करें</button>
-                        <p style="white-space: pre-line; margin-top:20px;">${d.details}</p>
+                        ${contentBody}
+                        <button class="share-btn" onclick="window.open('https://wa.me/?text='+encodeURIComponent(document.title))">WhatsApp पर शेयर करें</button>
+                        ${bottomFixAd}
                     `;
                     
                     const ads = document.getElementsByClassName('adsbygoogle');
-                    for (let i = 0; i < ads.length; i++) {
-                        (adsbygoogle = window.adsbygoogle || []).push({});
-                    }
+                    for (let i = 0; i < ads.length; i++) { (adsbygoogle = window.adsbygoogle || []).push({}); }
                 }
             });
-        }
-
-        db.collection("allNews").orderBy("timestamp", "desc").limit(5).onSnapshot(snapshot => {
-            const list = document.getElementById('moreNewsList');
-            list.innerHTML = '';
-            snapshot.forEach(doc => {
-                if(doc.id !== id) {
-                    list.innerHTML += `<div class="more-item" onclick="window.location.href='details.html?id=${doc.id}'">${doc.data().heading}</div>`;
-                }
-            });
-        });
-
-        function shareNews() {
-            window.open("https://wa.me/?text=" + encodeURIComponent(document.title + "\n\nयहाँ पढ़ें: " + window.location.href), "_blank");
         }
     </script>
 </body>
