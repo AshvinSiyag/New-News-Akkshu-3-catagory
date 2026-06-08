@@ -3,11 +3,11 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>News Details - NEWS Akkshu</title>
+    <title>News Details - HEADLINE NEWS 24×7</title>
     <meta property="og:type" content="article">
-    <meta property="og:title" id="og-title" content="NEWS Akkshu">
+    <meta property="og:title" id="og-title" content="HEADLINE NEWS 24×7">
     <meta property="og:description" id="og-desc" content="पूरी खबर पढ़ने के लिए यहाँ क्लिक करें।">
-    <meta property="og:image" id="og-image" content="https://amazybuy.shop/1000678471.png">
+    <meta property="og:image" id="og-image" content="">
     
     <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-4298712782505661" crossorigin="anonymous"></script>
     <style>
@@ -53,14 +53,16 @@
 
         if (id) {
             const docRef = db.collection("allNews").doc(id);
-            
-            // 1. व्यूज़ बढ़ाएं
             docRef.update({ views: firebase.firestore.FieldValue.increment(1) }).catch(() => {});
 
-            // 2. रीयल-टाइम अपडेट के लिए onSnapshot
             docRef.onSnapshot(doc => {
                 if (doc.exists) {
                     const d = doc.data();
+                    
+                    // शेयरिंग के लिए मेटा टैग्स अपडेट करें
+                    document.getElementById('og-title').setAttribute('content', d.heading);
+                    document.getElementById('og-image').setAttribute('content', d.image);
+                    document.title = d.heading + " - HEADLINE NEWS 24×7";
                     
                     let dateStr = "";
                     if (d.timestamp) {
@@ -113,3 +115,4 @@
     </script>
 </body>
 </html>
+
