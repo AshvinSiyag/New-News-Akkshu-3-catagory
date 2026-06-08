@@ -53,14 +53,15 @@
 
         if (id) {
             const docRef = db.collection("allNews").doc(id);
-            // व्यूज़ बढ़ाएं
+            
+            // 1. व्यूज़ बढ़ाएं
             docRef.update({ views: firebase.firestore.FieldValue.increment(1) }).catch(() => {});
 
-            docRef.get().then(doc => {
+            // 2. रीयल-टाइम अपडेट के लिए onSnapshot
+            docRef.onSnapshot(doc => {
                 if (doc.exists) {
                     const d = doc.data();
                     
-                    // तारीख और समय का फॉर्मेट
                     let dateStr = "";
                     if (d.timestamp) {
                         const date = d.timestamp.toDate();
@@ -84,10 +85,9 @@
                         if (index === paragraphs.length - 1 && extraAds[2]) htmlContent += extraAds[2];
                     });
 
-                    // यहाँ Views को डेटाबेस वाले असली नंबर (d.views) से दिखाया है
                     document.getElementById('newsContent').innerHTML = `
                         <h1>${d.heading}</h1>
-                        <p class="stats">📅 ${dateStr} | 👁️ ${d.views ? d.views : 0} Views</p>
+                        <p class="stats">📅 ${dateStr} | 👁️ ${d.views || 0} Views</p>
                         ${topFixAd}
                         <img src="${d.image}" class="news-image">
                         ${htmlContent}
