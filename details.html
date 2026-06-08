@@ -17,13 +17,9 @@
         .logo-header img { width: 150px; cursor: pointer; }
         .back-btn { display: inline-block; margin-bottom: 20px; padding: 10px 15px; background: #333; color: white; text-decoration: none; border-radius: 5px; }
         .news-image { width: 100%; border-radius: 8px; margin-top: 15px; }
-        .video-container { margin-top: 20px; width: 100%; }
-        .video-container iframe { width: 100%; height: 315px; border-radius: 8px; }
         .ad-container { margin: 20px 0; min-height: 100px; text-align: center; }
         .share-btn { background: #25d366; color: white; border: none; padding: 12px; width: 100%; border-radius: 5px; cursor: pointer; font-weight: bold; margin: 20px 0; font-size: 16px; }
         .stats { color: #555; font-size: 14px; }
-        .more-news { margin-top: 40px; border-top: 2px solid #ddd; padding-top: 20px; }
-        .more-item { padding: 15px; border-bottom: 1px solid #eee; cursor: pointer; color: #d32f2f; font-weight: bold; }
     </style>
 </head>
 <body>
@@ -32,13 +28,7 @@
             <img src="1000678471.png" onclick="window.location.href='index.html'">
         </div>
         <a href="index.html" class="back-btn">← Back</a>
-        
         <div id="newsContent">Loading news...</div>
-
-        <div class="more-news">
-            <h3>Read More News</h3>
-            <div id="moreNewsList"></div>
-        </div>
     </div>
 
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
@@ -54,46 +44,39 @@
         }
 
         if (id) {
-            const docRef = db.collection("allNews").doc(id);
-            docRef.get().then(doc => {
+            db.collection("allNews").doc(id).get().then(doc => {
                 if (doc.exists) {
                     const d = doc.data();
                     
-                    // 1. फिक्स एड्स
+                    // 1. फिक्स एड्स (एक ऊपर, एक नीचे)
                     let topFixAd = createAd(); 
                     let bottomFixAd = createAd();
                     
-                    // 2. एक्स्ट्रा एड्स (अगर चुनी गई हैं)
+                    // 2. एक्स्ट्रा एड्स (जो एडमिन से सिलेक्ट की हैं)
                     let extraAds = [];
                     if (d.adOption === "banner" || d.adOption === "all") {
                         let count = parseInt(d.adCount) || 0;
                         for(let i = 0; i < count; i++) { extraAds.push(createAd()); }
                     }
 
-                    // 3. लेआउट सेट करना
-                    let contentBody = `<p style="white-space: pre-line; margin-top:20px;">${d.details}</p>`;
+                    // 3. कंटेंट लेआउट
+                    let paragraphs = d.details.split('\n\n');
+                    let htmlContent = "";
                     
-                    // अगर एक्स्ट्रा एड्स हैं, तो उन्हें न्यूज़ के बीच में जोड़ें
-                    if (extraAds.length > 0) {
-                        let parts = d.details.split('\n\n'); // पैराग्राफ के हिसाब से तोड़ें
-                        let mid = Math.floor(parts.length / 2);
-                        
-                        let htmlDetails = "";
-                        parts.forEach((p, index) => {
-                            htmlDetails += `<p>${p}</p>`;
-                            if (index === 0 && extraAds[0]) htmlDetails += extraAds[0]; // पहला एड
-                            if (index === mid && extraAds[1]) htmlDetails += extraAds[1]; // बीच वाला एड
-                            if (index === parts.length - 1 && extraAds[2]) htmlDetails += extraAds[2]; // तीसरा एड
-                        });
-                        contentBody = htmlDetails;
-                    }
+                    paragraphs.forEach((p, index) => {
+                        htmlContent += `<p style="white-space: pre-line;">${p}</p>`;
+                        // एड्स की पोजीशनिंग: पहली एड शुरू में, दूसरी बीच में, तीसरी अंत में
+                        if (index === 0 && extraAds[0]) htmlContent += extraAds[0];
+                        if (index === Math.floor(paragraphs.length / 2) && extraAds[1]) htmlContent += extraAds[1];
+                        if (index === paragraphs.length - 1 && extraAds[2]) htmlContent += extraAds[2];
+                    });
 
                     document.getElementById('newsContent').innerHTML = `
                         <h1>${d.heading}</h1>
                         ${topFixAd}
                         <img src="${d.image}" class="news-image">
-                        ${contentBody}
-                        <button class="share-btn" onclick="window.open('https://wa.me/?text='+encodeURIComponent(document.title))">WhatsApp पर शेयर करें</button>
+                        ${htmlContent}
+                        <button class="share-btn" onclick="window.open('https://wa.me/?text='+encodeURIComponent(document.title+'\\n\\nयहाँ पढ़ें: '+window.location.href))">WhatsApp पर शेयर करें</button>
                         ${bottomFixAd}
                     `;
                     
