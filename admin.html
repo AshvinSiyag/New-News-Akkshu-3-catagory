@@ -25,21 +25,26 @@
     <input type="text" id="heading" placeholder="Headline">
     <input type="text" id="image" placeholder="Image URL">
     <textarea id="details" placeholder="Full News" rows="5"></textarea>
+    
     <select id="category">
         <option value="Hindi">Hindi</option>
         <option value="English">English</option>
         <option value="Gujarati">Gujarati</option>
     </select>
+
     <select id="adOption">
         <option value="none">No Ads</option>
         <option value="banner">Banner Ads</option>
+        <option value="video">Video Ads</option>
         <option value="all">All Ads</option>
     </select>
+
     <select id="adCount">
         <option value="1">1 Ad</option>
         <option value="2">2 Ads</option>
         <option value="3">3 Ads</option>
     </select>
+
     <button id="actionBtn" class="btn-pub" onclick="saveNews()">Publish News</button>
 </div>
 
@@ -49,7 +54,14 @@
 </div>
 
 <script>
-    const firebaseConfig = { apiKey: "AIzaSyAOTuJcjYGPld5wZYVPHK0jpXKAh561lVU", authDomain: "news-akkshu.firebaseapp.com", projectId: "news-akkshu", storageBucket: "news-akkshu.firebasestorage.app", messagingSenderId: "735024392453", appId: "1:735024392453:web:30f8a1f0832ff36b1fef6c" };
+    const firebaseConfig = { 
+        apiKey: "AIzaSyAOTuJcjYGPld5wZYVPHK0jpXKAh561lVU", 
+        authDomain: "news-akkshu.firebaseapp.com", 
+        projectId: "news-akkshu", 
+        storageBucket: "news-akkshu.firebasestorage.app", 
+        messagingSenderId: "735024392453", 
+        appId: "1:735024392453:web:30f8a1f0832ff36b1fef6c" 
+    };
     firebase.initializeApp(firebaseConfig);
     const db = firebase.firestore();
 
@@ -64,11 +76,14 @@
             adCount: document.getElementById('adCount').value,
             timestamp: firebase.firestore.FieldValue.serverTimestamp()
         };
-        if(id) { db.collection("allNews").doc(id).update(data).then(() => { alert("Updated!"); location.reload(); }); }
-        else { db.collection("allNews").add(data).then(() => { alert("Published!"); location.reload(); }); }
+        
+        if(id) {
+            db.collection("allNews").doc(id).update(data).then(() => { alert("News Updated!"); location.reload(); });
+        } else {
+            db.collection("allNews").add(data).then(() => { alert("News Published!"); location.reload(); });
+        }
     }
 
-    // डिलीट फंक्शन जोड़ा गया है
     function deleteNews(id) { 
         if(confirm("क्या आप वाकई इस न्यूज़ को डिलीट करना चाहते हैं?")) {
             db.collection("allNews").doc(id).delete().then(() => { alert("News Deleted!"); location.reload(); }); 
@@ -89,7 +104,8 @@
     }
 
     db.collection("allNews").orderBy("timestamp", "desc").onSnapshot(snapshot => {
-        const list = document.getElementById('adminNewsList'); list.innerHTML = '';
+        const list = document.getElementById('adminNewsList'); 
+        list.innerHTML = '';
         snapshot.forEach(doc => {
             const d = doc.data();
             list.innerHTML += `
@@ -105,4 +121,3 @@
 </script>
 </body>
 </html>
-
