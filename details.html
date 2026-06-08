@@ -51,6 +51,10 @@
         const db = firebase.firestore();
         const id = new URLSearchParams(window.location.search).get('id');
 
+        function createAd() {
+            return `<div class="ad-container"><ins class="adsbygoogle" style="display:block" data-ad-format="auto" data-ad-full-width-responsive="true" data-ad-client="ca-pub-4298712782505661"></ins></div>`;
+        }
+
         if (id) {
             const docRef = db.collection("allNews").doc(id);
             docRef.update({ views: firebase.firestore.FieldValue.increment(1) }).catch(() => {});
@@ -63,13 +67,18 @@
                     document.getElementById('og-desc').setAttribute('content', d.details.substring(0, 100) + "...");
                     document.getElementById('og-image').setAttribute('content', d.image);
                     
-                    // एड्स जेनरेट करने का लॉजिक (Ad Option & Count)
-                    let adsHtml = "";
+                    // 2 फिक्स एड्स + पैनल से चुनी हुई एड्स लॉजिक
+                    let adsHtml = createAd() + createAd(); 
                     if (d.adOption === "banner" || d.adOption === "all") {
-                        let count = parseInt(d.adCount) || 1;
-                        for(let i = 0; i < count; i++) {
-                            adsHtml += `<div class="ad-container"><ins class="adsbygoogle" style="display:block" data-ad-format="auto" data-ad-full-width-responsive="true" data-ad-client="ca-pub-4298712782505661"></ins></div>`;
+                        let extraCount = parseInt(d.adCount) || 0;
+                        for(let i = 0; i < extraCount; i++) {
+                            adsHtml += createAd();
                         }
+                    }
+                    
+                    // अगर Video Ads सिलेक्टेड हैं
+                    if (d.adOption === "video" || d.adOption === "all") {
+                        adsHtml += `<div class="ad-container" style="border: 1px dashed #ccc; padding: 20px;">Video Ad Space (VAST Tag Required)</div>`;
                     }
 
                     let videoHtml = d.videoUrl ? `
@@ -85,10 +94,12 @@
                         ${adsHtml}
                         <button class="share-btn" onclick="shareNews()">WhatsApp पर शेयर करें</button>
                         <p style="white-space: pre-line; margin-top:20px;">${d.details}</p>
-                        ${adsHtml}
                     `;
-                    // एड्स लोड करने के लिए कमांड
-                    (adsbygoogle = window.adsbygoogle || []).push({});
+                    
+                    const ads = document.getElementsByClassName('adsbygoogle');
+                    for (let i = 0; i < ads.length; i++) {
+                        (adsbygoogle = window.adsbygoogle || []).push({});
+                    }
                 }
             });
         }
@@ -107,3 +118,5 @@
             window.open("https://wa.me/?text=" + encodeURIComponent(document.title + "\n\nयहाँ पढ़ें: " + window.location.href), "_blank");
         }
     </script>
+</body>
+</html>
