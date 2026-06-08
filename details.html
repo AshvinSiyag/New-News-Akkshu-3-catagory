@@ -63,10 +63,11 @@
                     document.getElementById('og-desc').setAttribute('content', d.details.substring(0, 100) + "...");
                     document.getElementById('og-image').setAttribute('content', d.image);
                     
-                    // एड्स जेनरेट करने का लॉजिक
+                    // एड्स जेनरेट करने का लॉजिक (Ad Option & Count)
                     let adsHtml = "";
                     if (d.adOption === "banner" || d.adOption === "all") {
-                        for(let i = 0; i < (d.adCount || 1); i++) {
+                        let count = parseInt(d.adCount) || 1;
+                        for(let i = 0; i < count; i++) {
                             adsHtml += `<div class="ad-container"><ins class="adsbygoogle" style="display:block" data-ad-format="auto" data-ad-full-width-responsive="true" data-ad-client="ca-pub-4298712782505661"></ins></div>`;
                         }
                     }
@@ -84,8 +85,9 @@
                         ${adsHtml}
                         <button class="share-btn" onclick="shareNews()">WhatsApp पर शेयर करें</button>
                         <p style="white-space: pre-line; margin-top:20px;">${d.details}</p>
+                        ${adsHtml}
                     `;
-                    // एड्स लोड करना
+                    // एड्स लोड करने के लिए कमांड
                     (adsbygoogle = window.adsbygoogle || []).push({});
                 }
             });
@@ -93,6 +95,7 @@
 
         db.collection("allNews").orderBy("timestamp", "desc").limit(5).onSnapshot(snapshot => {
             const list = document.getElementById('moreNewsList');
+            list.innerHTML = '';
             snapshot.forEach(doc => {
                 if(doc.id !== id) {
                     list.innerHTML += `<div class="more-item" onclick="window.location.href='details.html?id=${doc.id}'">${doc.data().heading}</div>`;
