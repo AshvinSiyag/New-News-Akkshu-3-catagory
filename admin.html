@@ -10,8 +10,7 @@
         body { font-family: sans-serif; padding: 20px; background: #f4f4f4; }
         .container { max-width: 600px; margin: auto; background: white; padding: 20px; border-radius: 8px; box-shadow: 0 2px 5px rgba(0,0,0,0.1); }
         input, textarea, select { width: 100%; padding: 10px; margin: 10px 0; border: 1px solid #ccc; border-radius: 4px; box-sizing: border-box; }
-        .btn-group { display: flex; gap: 10px; }
-        button { width: 100%; padding: 10px; color: white; border: none; cursor: pointer; font-weight: bold; }
+        button { width: 100%; padding: 12px; color: white; border: none; cursor: pointer; font-weight: bold; margin-top: 10px; }
         .btn-pub { background: #d32f2f; }
         .btn-edit { background: #1976d2; padding: 5px 15px; width: auto; }
         .btn-del { background: black; padding: 5px 15px; width: auto; }
@@ -26,11 +25,28 @@
     <input type="text" id="heading" placeholder="Headline">
     <input type="text" id="image" placeholder="Image URL">
     <textarea id="details" placeholder="Full News" rows="5"></textarea>
+    
     <select id="category">
         <option value="Hindi">Hindi</option>
         <option value="English">English</option>
         <option value="Gujarati">Gujarati</option>
     </select>
+
+    <label>Ads Setting:</label>
+    <select id="adOption">
+        <option value="none">No Ads</option>
+        <option value="banner">Banner Ads</option>
+        <option value="video">Video/Custom Ads</option>
+        <option value="all">All Ads</option>
+    </select>
+
+    <label>Ad Count (How many ads):</label>
+    <select id="adCount">
+        <option value="1">1 Ad</option>
+        <option value="2">2 Ads</option>
+        <option value="3">3 Ads</option>
+    </select>
+
     <button id="actionBtn" class="btn-pub" onclick="saveNews()">Publish News</button>
 </div>
 
@@ -51,7 +67,6 @@
     firebase.initializeApp(firebaseConfig);
     const db = firebase.firestore();
 
-    // सेव या अपडेट फंक्शन
     function saveNews() {
         const id = document.getElementById('editId').value;
         const data = {
@@ -59,6 +74,8 @@
             image: document.getElementById('image').value,
             details: document.getElementById('details').value,
             category: document.getElementById('category').value,
+            adOption: document.getElementById('adOption').value,
+            adCount: document.getElementById('adCount').value,
             timestamp: firebase.firestore.FieldValue.serverTimestamp()
         };
 
@@ -69,19 +86,19 @@
         }
     }
 
-    // एडिट करने के लिए डेटा फॉर्म में भरना
-    function editNews(id, heading, image, details, category) {
+    function editNews(id, heading, image, details, category, adOption, adCount) {
         document.getElementById('editId').value = id;
         document.getElementById('heading').value = heading;
         document.getElementById('image').value = image;
         document.getElementById('details').value = details;
         document.getElementById('category').value = category;
+        document.getElementById('adOption').value = adOption;
+        document.getElementById('adCount').value = adCount;
         document.getElementById('formTitle').innerText = "Edit News";
         document.getElementById('actionBtn').innerText = "Update News";
         window.scrollTo(0,0);
     }
 
-    // न्यूज़ लिस्ट लोड करना
     db.collection("allNews").orderBy("timestamp", "desc").onSnapshot(snapshot => {
         const list = document.getElementById('adminNewsList');
         list.innerHTML = '';
@@ -90,23 +107,10 @@
             list.innerHTML += `
                 <div class="news-item">
                     <span>${d.heading}</span>
-                    <div style="display:flex; gap:5px;">
-                        <button class="btn-edit" onclick="editNews('${doc.id}', '${d.heading.replace(/'/g, "\\'")}', '${d.image}', '${d.details.replace(/\n/g, '\\n').replace(/'/g, "\\'")}', '${d.category}')">Edit</button>
-                        <button class="btn-del" onclick="deleteNews('${doc.id}')">Delete</button>
-                    </div>
+                    <button class="btn-edit" onclick="editNews('${doc.id}', '${d.heading.replace(/'/g, "\\'")}', '${d.image}', '${d.details.replace(/\n/g, '\\n').replace(/'/g, "\\'")}', '${d.category}', '${d.adOption}', '${d.adCount}')">Edit</button>
                 </div>`;
         });
     });
-
-    // डिलीट फंक्शन
-    function deleteNews(id) {
-        let pass = prompt("Enter Password to Delete:");
-        if (pass === "Akkshu@love") {
-            db.collection("allNews").doc(id).delete().then(() => alert("Deleted!"));
-        } else if (pass !== null) {
-            alert("Wrong Password!");
-        }
-    }
 </script>
 </body>
 </html>
