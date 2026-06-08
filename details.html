@@ -84,9 +84,10 @@
                         if (index === paragraphs.length - 1 && extraAds[2]) htmlContent += extraAds[2];
                     });
 
+                    // यहाँ Views को डेटाबेस वाले असली नंबर (d.views) से दिखाया है
                     document.getElementById('newsContent').innerHTML = `
                         <h1>${d.heading}</h1>
-                        <p class="stats">📅 ${dateStr} | 👁️ ${d.views ? d.views + 1 : 1} Views</p>
+                        <p class="stats">📅 ${dateStr} | 👁️ ${d.views ? d.views : 0} Views</p>
                         ${topFixAd}
                         <img src="${d.image}" class="news-image">
                         ${htmlContent}
