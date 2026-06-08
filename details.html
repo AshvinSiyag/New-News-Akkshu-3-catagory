@@ -19,7 +19,7 @@
         .news-image { width: 100%; border-radius: 8px; margin-top: 15px; }
         .ad-container { margin: 20px 0; min-height: 100px; text-align: center; }
         .share-btn { background: #25d366; color: white; border: none; padding: 12px; width: 100%; border-radius: 5px; cursor: pointer; font-weight: bold; margin: 20px 0; font-size: 16px; }
-        .stats { color: #555; font-size: 14px; }
+        .stats { color: #555; font-size: 14px; margin-bottom: 10px; }
         .more-news { margin-top: 40px; border-top: 2px solid #ddd; padding-top: 20px; }
         .more-item { padding: 15px; border-bottom: 1px solid #eee; cursor: pointer; color: #d32f2f; font-weight: bold; }
     </style>
@@ -33,7 +33,6 @@
         
         <div id="newsContent">Loading news...</div>
 
-        <!-- यह रहा आपका 'More News' सेक्शन -->
         <div class="more-news">
             <h3>Read More News</h3>
             <div id="moreNewsList"></div>
@@ -53,9 +52,21 @@
         }
 
         if (id) {
-            db.collection("allNews").doc(id).get().then(doc => {
+            const docRef = db.collection("allNews").doc(id);
+            // व्यूज़ बढ़ाएं
+            docRef.update({ views: firebase.firestore.FieldValue.increment(1) }).catch(() => {});
+
+            docRef.get().then(doc => {
                 if (doc.exists) {
                     const d = doc.data();
+                    
+                    // तारीख और समय का फॉर्मेट
+                    let dateStr = "";
+                    if (d.timestamp) {
+                        const date = d.timestamp.toDate();
+                        dateStr = date.toLocaleDateString('hi-IN') + " " + date.toLocaleTimeString('hi-IN', {hour: '2-digit', minute:'2-digit'});
+                    }
+
                     let topFixAd = createAd(); 
                     let bottomFixAd = createAd();
                     let extraAds = [];
@@ -75,6 +86,7 @@
 
                     document.getElementById('newsContent').innerHTML = `
                         <h1>${d.heading}</h1>
+                        <p class="stats">📅 ${dateStr} | 👁️ ${d.views ? d.views + 1 : 1} Views</p>
                         ${topFixAd}
                         <img src="${d.image}" class="news-image">
                         ${htmlContent}
@@ -88,7 +100,6 @@
             });
         }
 
-        // More News वाला लॉजिक वापस आ गया है
         db.collection("allNews").orderBy("timestamp", "desc").limit(5).onSnapshot(snapshot => {
             const list = document.getElementById('moreNewsList');
             list.innerHTML = '';
