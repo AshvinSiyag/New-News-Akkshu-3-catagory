@@ -58,7 +58,8 @@
             docRef.get().then(doc => {
                 if (doc.exists) {
                     const d = doc.data();
-                    // मेटा टैग्स अपडेट करें
+                    
+                    // मेटा टैग्स को अपडेट करना ताकि व्हाट्सएप नई इमेज उठाए
                     document.title = d.heading;
                     document.getElementById('og-title').setAttribute('content', d.heading);
                     document.getElementById('og-desc').setAttribute('content', d.details.substring(0, 100) + "...");
