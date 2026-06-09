@@ -4,7 +4,6 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>HEADLINE NEWS 24×7</title>
-    <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-4298712782505661" crossorigin="anonymous"></script>
     <style>
         body { font-family: 'Segoe UI', Tahoma, sans-serif; background: #e2e8f0; text-align: center; margin: 0; }
         .lang-bar { display: flex; flex-wrap: wrap; justify-content: center; padding: 15px; gap: 10px; background: #fff; position: sticky; top: 0; z-index: 1000; }
@@ -30,10 +29,8 @@
 
     <img src="1000678471.png" id="logo" onclick="logoClick()">
 
-    <div class="main-panel">
-        <h1>HEADLINE NEWS 24×7</h1>
-        
-        <div id="weatherContainer">
+    <div id="mainPanel" class="main-panel" style="display:none;">
+        <div id="weatherContainer" style="display:none;">
             <h3>ગુજરાતના જિલ્લા અને ગામ પસંદ કરો</h3>
             <select id="citySelect" onchange="fetchWeatherData()">
                 <option value="Ahmedabad">અમદાવાદ</option>
@@ -71,9 +68,23 @@
         }
 
         function showSection(id) {
+            document.getElementById('mainPanel').style.display = 'block';
             document.getElementById('weatherContainer').style.display = (id === 'weatherContainer') ? 'block' : 'none';
             document.getElementById('marketContainer').style.display = (id === 'marketContainer') ? 'block' : 'none';
             if(id === 'marketContainer') fetchMarketData();
+            if(id === 'weatherContainer') fetchWeatherData();
+        }
+
+        function loadNews(cat) {
+            document.getElementById('mainPanel').style.display = 'none';
+            db.collection("allNews").where("category", "==", cat).orderBy("timestamp", "desc").onSnapshot(s => {
+                const c = document.getElementById('newsContainer');
+                c.innerHTML = '';
+                s.forEach(doc => {
+                    const d = doc.data();
+                    c.innerHTML += `<div style="padding:15px; background:white; margin:10px auto; max-width:500px; border-radius:10px;"><h3>${d.heading}</h3></div>`;
+                });
+            });
         }
 
         async function fetchMarketData() {
@@ -98,19 +109,7 @@
                 <div>સ્થિતિ: ${data.weather[0].description}</div>
             `;
         }
-
-        function loadNews(cat) {
-            db.collection("allNews").where("category", "==", cat).orderBy("timestamp", "desc").onSnapshot(s => {
-                const c = document.getElementById('newsContainer');
-                c.innerHTML = '';
-                s.forEach(doc => {
-                    const d = doc.data();
-                    c.innerHTML += `<div style="padding:15px; background:white; margin:10px auto; max-width:500px; border-radius:10px;"><h3>${d.heading}</h3></div>`;
-                });
-            });
-        }
-        window.onload = () => { fetchWeatherData(); loadNews('Gujarati'); };
+        window.onload = () => loadNews('Gujarati');
     </script>
 </body>
 </html>
-
