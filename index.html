@@ -4,21 +4,17 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>HEADLINE NEWS 24×7</title>
-    <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-4298712782505661" crossorigin="anonymous"></script>
     <style>
         body { font-family: 'Segoe UI', Tahoma, sans-serif; background: #e2e8f0; text-align: center; margin: 0; }
         .lang-bar { display: flex; flex-wrap: wrap; justify-content: center; padding: 15px; gap: 10px; background: #fff; position: sticky; top: 0; z-index: 1000; }
         button { padding: 10px 15px; cursor: pointer; border: none; background: #d32f2f; color: white; border-radius: 5px; font-weight: 900; }
-        .weather-btn { background: #4a5568; }
-        .market-btn { background: #d69e2e; }
         .main-panel { background: #ffffff; padding: 25px; border-radius: 20px; max-width: 500px; margin: 20px auto; box-shadow: 0 10px 25px rgba(0,0,0,0.1); }
         h1, h3 { font-weight: 900; color: #1a202c; }
         select { width: 100%; padding: 12px; font-weight: bold; border-radius: 10px; border: 2px solid #cbd5e0; margin: 15px 0; }
         .info-box { background: #f8fafc; padding: 15px; border-radius: 15px; border: 1px solid #cbd5e0; font-weight: 800; font-size: 1.1em; color: #4a5568; }
+        #weatherBoy { width: 120px; margin-top: 10px; }
         .market-item { display: flex; justify-content: space-between; padding: 12px; font-weight: 900; border-bottom: 2px solid #e2e8f0; color: #000; }
         .up { color: #2f855a; } .down { color: #c53030; }
-        .ad-slot { margin: 15px auto; max-width: 600px; min-height: 100px; }
-        #logo { width: 200px; cursor: pointer; margin-top: 10px; }
     </style>
 </head>
 <body>
@@ -27,35 +23,32 @@
         <button onclick="loadNews('Hindi')">Hindi</button>
         <button onclick="loadNews('English')">English</button>
         <button onclick="loadNews('Gujarati')">Gujarati</button>
-        <button class="weather-btn" onclick="showSection('weatherContainer')">હવામાન</button>
-        <button class="market-btn" onclick="showSection('marketContainer')">બજાર</button>
     </div>
 
-    <!-- 5-Click Admin Panel Logo -->
-    <img src="1000678471.png" id="logo" onclick="logoClick()">
+    <img src="1000678471.png" id="logo" style="width:150px; cursor:pointer;" onclick="logoClick()">
 
     <div class="main-panel">
         <h1>HEADLINE NEWS 24×7</h1>
-        
         <div id="weatherContainer">
-            <h3>ગુજરાતના જિલ્લા અને ગામ પસંદ કરો</h3>
+            <h3>જિલ્લો પસંદ કરો</h3>
             <select id="citySelect" onchange="fetchWeatherData()">
                 <option value="Ahmedabad">અમદાવાદ</option>
                 <option value="Surat">સુરત</option>
-                <option value="Rajkot">રાજકોટ</option>
                 <option value="Deesa">ડીસા</option>
             </select>
-            <div id="weatherResult" class="info-box">પસંદ કરો...</div>
+            <div id="weatherResult" class="info-box">
+                <img id="weatherBoy" src="boy_normal.png" alt="Boy">
+                <div id="weatherDetails">માહિતી લોડ થઈ રહી છે...</div>
+            </div>
         </div>
-
         <div id="marketContainer" style="display:none;">
             <h3>બજારના લાઈવ ભાવ</h3>
-            <div id="marketResult">લોડ થઈ રહ્યું છે...</div>
+            <div id="marketResult"></div>
         </div>
     </div>
 
-    <div id="newsContainer" class="ad-slot"></div>
-    
+    <div id="newsContainer"></div>
+
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-firestore.js"></script>
     
@@ -64,7 +57,6 @@
         firebase.initializeApp(firebaseConfig);
         const db = firebase.firestore();
 
-        // 5-Click Logic
         let clickCount = 0;
         function logoClick() {
             clickCount++;
@@ -75,30 +67,19 @@
             }
         }
 
-        function showSection(id) {
-            document.getElementById('weatherContainer').style.display = (id === 'weatherContainer') ? 'block' : 'none';
-            document.getElementById('marketContainer').style.display = (id === 'marketContainer') ? 'block' : 'none';
-            if(id === 'marketContainer') fetchMarketData();
-        }
-
-        async function fetchMarketData() {
-            const res = await fetch(`https://api.twelvedata.com/quote?symbol=SENSEX,NIFTY50,GOLD,SILVER,BTC/USD&apikey=89dc6593e9fb4ddf9071da2b5d9db4f0`);
-            const data = await res.json();
-            let html = "";
-            for (let key in data) {
-                let s = data[key];
-                let change = parseFloat(s.percent_change).toFixed(2);
-                html += `<div class="market-item"><span>${key}</span><span class="${change >= 0 ? 'up' : 'down'}">${parseFloat(s.close).toFixed(2)} (${change}%)</span></div>`;
-            }
-            document.getElementById('marketResult').innerHTML = html;
-        }
-
         async function fetchWeatherData() {
             const city = document.getElementById('citySelect').value;
             const res = await fetch(`https://api.openweathermap.org/data/2.5/weather?q=${city}&units=metric&appid=c3d2062e4f2ab500d532b35b6b6d9059&lang=gu`);
             const data = await res.json();
-            document.getElementById('weatherResult').innerHTML = `
-                <div style="font-size: 1.2em;">${city} નું હવામાન</div>
+            
+            const condition = data.weather[0].main;
+            const boyImg = document.getElementById('weatherBoy');
+            if (condition === "Rain") boyImg.src = "boy_rainy.png";
+            else if (data.main.temp > 35) boyImg.src = "boy_sweating.png";
+            else boyImg.src = "boy_normal.png";
+
+            document.getElementById('weatherDetails').innerHTML = `
+                <div>${city} નું હવામાન</div>
                 <div>તાપમાન: ${data.main.temp}°C</div>
                 <div>સ્થિતિ: ${data.weather[0].description}</div>
             `;
@@ -110,12 +91,15 @@
                 c.innerHTML = '';
                 s.forEach(doc => {
                     const d = doc.data();
-                    c.innerHTML += `<div class="news-card"><h3>${d.heading}</h3></div>`;
+                    c.innerHTML += `<div style="padding:10px; border-bottom:1px solid #ccc;"><h3>${d.heading}</h3></div>`;
                 });
             });
         }
-        window.onload = fetchWeatherData;
+
+        window.onload = () => {
+            fetchWeatherData();
+            loadNews('Gujarati'); // वेबसाइट खुलते ही गुजराती न्यूज़ लोड होगी
+        };
     </script>
 </body>
 </html>
-
