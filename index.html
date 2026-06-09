@@ -15,10 +15,14 @@
         .news-card { background: white; padding: 20px; margin: 15px auto; max-width: 600px; border-radius: 10px; cursor: pointer; text-align: left; box-shadow: 0 2px 5px rgba(0,0,0,0.1); }
         .news-card h3 { margin: 0; color: #333; font-weight: bold; }
         .share-btn { margin-top: 5px; color: #25d366; font-size: 14px; font-weight: bold; }
-        /* Weather & Market Sections */
+        
         #weatherContainer, #marketContainer { display: none; padding: 20px; max-width: 600px; margin: 20px auto; background: #cbd5e0; border-radius: 15px; color: #2d3748; }
         #citySelect { padding: 10px; border-radius: 5px; width: 100%; max-width: 300px; margin-bottom: 15px; }
+        
         .market-item { background: white; padding: 12px; margin: 8px 0; border-radius: 8px; display: flex; justify-content: space-between; font-weight: bold; color: #000; }
+        .up { color: green; } /* Plus ke liye Hara */
+        .down { color: red; } /* Minus ke liye Laal */
+        
         .ad-slot { margin: 15px auto; max-width: 600px; min-height: 100px; }
     </style>
 </head>
@@ -32,7 +36,6 @@
         <button class="market-btn" onclick="showSection('marketContainer')">બજાર</button>
     </div>
 
-    <!-- Ad 1 -->
     <div class="ad-slot"><ins class="adsbygoogle" style="display:block" data-ad-format="auto" data-ad-client="ca-pub-4298712782505661" data-ad-slot="1000000001"></ins></div>
 
     <header>
@@ -57,26 +60,22 @@
 
     <div id="marketContainer">
         <h3>બજારના લાઈવ ભાવ</h3>
-        <div class="market-item"><span>Sensex</span><span>76,500 (+0.8%)</span></div>
-        <div class="market-item"><span>Nifty 50</span><span>23,200 (+0.5%)</span></div>
-        <div class="market-item"><span>Gold (10g)</span><span>₹73,200 (+0.2%)</span></div>
-        <div class="market-item"><span>Silver (1kg)</span><span>₹92,500 (-0.5%)</span></div>
-        <div class="market-item"><span>Bitcoin</span><span>$70,100 (+1.5%)</span></div>
-        <div class="market-item"><span>Reliance</span><span>₹2,950 (+0.3%)</span></div>
-        <div class="market-item"><span>TCS</span><span>₹3,800 (-0.1%)</span></div>
-        <div class="market-item"><span>HDFC Bank</span><span>₹1,550 (+0.4%)</span></div>
+        <div class="market-item"><span>Sensex</span><span class="up">76,500 (+0.8%)</span></div>
+        <div class="market-item"><span>Nifty 50</span><span class="up">23,200 (+0.5%)</span></div>
+        <div class="market-item"><span>Gold (10g)</span><span class="up">₹73,200 (+0.2%)</span></div>
+        <div class="market-item"><span>Silver (1kg)</span><span class="down">₹92,500 (-0.5%)</span></div>
+        <div class="market-item"><span>Bitcoin</span><span class="up">$70,100 (+1.5%)</span></div>
+        <div class="market-item"><span>Reliance</span><span class="up">₹2,950 (+0.3%)</span></div>
+        <div class="market-item"><span>TCS</span><span class="down">₹3,800 (-0.1%)</span></div>
+        <div class="market-item"><span>HDFC Bank</span><span class="up">₹1,550 (+0.4%)</span></div>
     </div>
 
-    <!-- Ad 2 -->
     <div class="ad-slot"><ins class="adsbygoogle" style="display:block" data-ad-format="auto" data-ad-client="ca-pub-4298712782505661" data-ad-slot="2000000002"></ins></div>
     
     <div id="newsContainer"></div>
     
-    <!-- Ad 3 & 4 -->
     <div class="ad-slot"><ins class="adsbygoogle" style="display:block" data-ad-format="auto" data-ad-client="ca-pub-4298712782505661" data-ad-slot="3000000003"></ins></div>
     <div class="ad-slot"><ins class="adsbygoogle" style="display:block" data-ad-format="auto" data-ad-client="ca-pub-4298712782505661" data-ad-slot="4000000004"></ins></div>
-
-    <!-- Ad 5 -->
     <div class="ad-slot"><ins class="adsbygoogle" style="display:block" data-ad-format="auto" data-ad-client="ca-pub-4298712782505661" data-ad-slot="5000000005"></ins></div>
 
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
