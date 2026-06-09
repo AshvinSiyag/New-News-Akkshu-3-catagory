@@ -4,7 +4,6 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>HEADLINE NEWS 24×7</title>
-    <!-- AdSense Script -->
     <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-4298712782505661" crossorigin="anonymous"></script>
     <style>
         body { font-family: sans-serif; background: #f4f4f4; text-align: center; margin: 0; padding: 0; }
@@ -14,11 +13,9 @@
         header img { width: 200px; cursor: pointer; margin-top: 20px; }
         .news-card { background: white; padding: 20px; margin: 15px auto; max-width: 600px; border-radius: 10px; cursor: pointer; text-align: left; box-shadow: 0 2px 5px rgba(0,0,0,0.1); }
         .news-card h3 { margin: 0; color: #333; }
-        .vid-tag { color: #d32f2f; font-weight: bold; font-size: 12px; margin-top: 5px; }
         .share-btn { margin-top: 5px; color: #25d366; font-size: 14px; font-weight: bold; }
-        /* Weather Section */
         #weatherContainer { display: none; padding: 20px; max-width: 600px; margin: 20px auto; background: #cbd5e0; border-radius: 15px; color: #2d3748; }
-        #citySelect { padding: 10px; border-radius: 5px; width: 100%; max-width: 300px; }
+        #citySelect { padding: 10px; border-radius: 5px; width: 100%; max-width: 300px; margin-bottom: 15px; }
     </style>
 </head>
 <body>
@@ -36,15 +33,22 @@
     </header>
 
     <div id="weatherContainer">
-        <h3>આજના હવામાનની માહિતી</h3>
+        <h3>ગુજરાતના જિલ્લા અને ગામ પસંદ કરો</h3>
         <select id="citySelect" onchange="fetchWeatherData()">
             <option value="Ahmedabad">અમદાવાદ</option>
             <option value="Surat">સુરત</option>
             <option value="Rajkot">રાજકોટ</option>
+            <option value="Palanpur">પાલનપુર</option>
+            <option value="Deesa">ડીસા</option>
+            <option value="Rampura">રામપુરા (ડીસા)</option>
             <option value="Vadodara">વડોદરા</option>
+            <option value="Bhavnagar">ભાવનગર</option>
+            <option value="Jamnagar">જામનગર</option>
+            <option value="Junagadh">જુનાગઢ</option>
+            <option value="Gandhinagar">ગાંધીનગર</option>
         </select>
         <div id="weatherResult" style="margin-top:20px; background: rgba(255,255,255,0.7); padding: 15px; border-radius: 10px;">
-            <p>શહેર પસંદ કરો...</p>
+            <p>જિલ્લો કે ગામ પસંદ કરો...</p>
         </div>
     </div>
 
@@ -94,11 +98,9 @@
                 container.innerHTML = '';
                 snapshot.forEach(doc => {
                     const d = doc.data();
-                    let videoTag = d.videoUrl ? '<div class="vid-tag">▶ Video News</div>' : '';
                     container.innerHTML += `
                         <div class="news-card" onclick="window.location.href='details.html?id=${doc.id}'">
                             <h3>${d.heading}</h3>
-                            ${videoTag}
                             <div class="share-btn">Read & Share ➔</div>
                         </div>`;
                 });
