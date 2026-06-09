@@ -8,7 +8,7 @@
         body { font-family: 'Segoe UI', Tahoma, sans-serif; background: #e2e8f0; text-align: center; margin: 0; }
         .lang-bar { display: flex; flex-wrap: wrap; justify-content: center; padding: 15px; gap: 10px; background: #fff; position: sticky; top: 0; z-index: 1000; }
         button { padding: 10px 15px; cursor: pointer; border: none; background: #d32f2f; color: white; border-radius: 5px; font-weight: 900; }
-        .main-panel { background: #ffffff; padding: 25px; border-radius: 20px; max-width: 500px; margin: 20px auto; box-shadow: 0 10px 25px rgba(0,0,0,0.1); }
+        .main-panel { background: #ffffff; padding: 25px; border-radius: 20px; max-width: 500px; margin: 20px auto; box-shadow: 0 10px 25px rgba(0,0,0,0.1); display: none; }
         h1, h3 { font-weight: 900; color: #1a202c; }
         select { width: 100%; padding: 12px; font-weight: bold; border-radius: 10px; border: 2px solid #cbd5e0; margin: 15px 0; }
         .info-box { background: #f8fafc; padding: 15px; border-radius: 15px; border: 1px solid #cbd5e0; font-weight: 800; font-size: 1.1em; color: #4a5568; }
@@ -29,7 +29,8 @@
 
     <img src="1000678471.png" id="logo" onclick="logoClick()">
 
-    <div id="mainPanel" class="main-panel" style="display:none;">
+    <!-- Panel for Weather & Market -->
+    <div id="mainPanel" class="main-panel">
         <div id="weatherContainer" style="display:none;">
             <h3>ગુજરાતના જિલ્લા અને ગામ પસંદ કરો</h3>
             <select id="citySelect" onchange="fetchWeatherData()">
@@ -47,6 +48,7 @@
         </div>
     </div>
 
+    <!-- Separate Container for News -->
     <div id="newsContainer"></div>
     
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
@@ -57,26 +59,23 @@
         firebase.initializeApp(firebaseConfig);
         const db = firebase.firestore();
 
-        let clickCount = 0;
-        function logoClick() {
-            clickCount++;
-            if (clickCount >= 5) {
-                clickCount = 0;
-                let pass = prompt("Enter Admin Password:");
-                if (pass === "Akkshu@love") window.location.href = "admin.html";
-            }
+        function clearDisplay() {
+            document.getElementById('mainPanel').style.display = 'none';
+            document.getElementById('weatherContainer').style.display = 'none';
+            document.getElementById('marketContainer').style.display = 'none';
+            document.getElementById('newsContainer').innerHTML = '';
         }
 
         function showSection(id) {
+            clearDisplay();
             document.getElementById('mainPanel').style.display = 'block';
-            document.getElementById('weatherContainer').style.display = (id === 'weatherContainer') ? 'block' : 'none';
-            document.getElementById('marketContainer').style.display = (id === 'marketContainer') ? 'block' : 'none';
+            document.getElementById(id).style.display = 'block';
             if(id === 'marketContainer') fetchMarketData();
             if(id === 'weatherContainer') fetchWeatherData();
         }
 
         function loadNews(cat) {
-            document.getElementById('mainPanel').style.display = 'none';
+            clearDisplay();
             db.collection("allNews").where("category", "==", cat).orderBy("timestamp", "desc").onSnapshot(s => {
                 const c = document.getElementById('newsContainer');
                 c.innerHTML = '';
@@ -109,6 +108,17 @@
                 <div>સ્થિતિ: ${data.weather[0].description}</div>
             `;
         }
+
+        let clickCount = 0;
+        function logoClick() {
+            clickCount++;
+            if (clickCount >= 5) {
+                clickCount = 0;
+                let pass = prompt("Enter Admin Password:");
+                if (pass === "Akkshu@love") window.location.href = "admin.html";
+            }
+        }
+
         window.onload = () => loadNews('Gujarati');
     </script>
 </body>
