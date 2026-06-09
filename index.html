@@ -14,6 +14,8 @@
         .info-box { background: #f8fafc; padding: 15px; border-radius: 15px; border: 1px solid #cbd5e0; font-weight: 800; font-size: 1.1em; color: #4a5568; }
         .market-item { display: flex; justify-content: space-between; padding: 12px; font-weight: 900; border-bottom: 2px solid #e2e8f0; color: #000; }
         .up { color: #2f855a; } .down { color: #c53030; }
+        .news-card { background: white; padding: 15px; margin: 10px auto; max-width: 500px; border-radius: 10px; cursor: pointer; text-align: left; }
+        .share-btn { color: #25d366; font-size: 14px; font-weight: bold; margin-top: 5px; }
         #logo { width: 200px; cursor: pointer; margin-top: 10px; }
     </style>
 </head>
@@ -57,46 +59,42 @@
         firebase.initializeApp(firebaseConfig);
         const db = firebase.firestore();
 
-        function clearDisplay() {
-            document.getElementById('mainPanel').style.display = 'none';
-            document.getElementById('weatherContainer').style.display = 'none';
-            document.getElementById('marketContainer').style.display = 'none';
-        }
-
         function showSection(id) {
-            document.getElementById('newsContainer').innerHTML = ''; // न्यूज़ साफ करें
+            document.getElementById('newsContainer').innerHTML = '';
             document.getElementById('mainPanel').style.display = 'block';
-            clearDisplay();
-            document.getElementById('mainPanel').style.display = 'block';
-            document.getElementById(id).style.display = 'block';
+            document.getElementById('weatherContainer').style.display = (id === 'weatherContainer') ? 'block' : 'none';
+            document.getElementById('marketContainer').style.display = (id === 'marketContainer') ? 'block' : 'none';
             if(id === 'marketContainer') fetchMarketData();
             if(id === 'weatherContainer') fetchWeatherData();
         }
 
         function loadNews(cat) {
-            clearDisplay();
             document.getElementById('mainPanel').style.display = 'none';
             db.collection("allNews").where("category", "==", cat).orderBy("timestamp", "desc").onSnapshot(s => {
                 const c = document.getElementById('newsContainer');
                 c.innerHTML = '';
                 s.forEach(doc => {
                     const d = doc.data();
-                    c.innerHTML += `<div style="padding:15px; background:white; margin:10px auto; max-width:500px; border-radius:10px;"><h3>${d.heading}</h3></div>`;
+                    // यहाँ न्यूज़ कार्ड पर क्लिक करने का लिंक और शेयर बटन वापस ला दिया है
+                    c.innerHTML += `
+                        <div class="news-card" onclick="window.location.href='details.html?id=${doc.id}'">
+                            <h3>${d.heading}</h3>
+                            <div class="share-btn">Read & Share ➔</div>
+                        </div>`;
                 });
             });
         }
 
         async function fetchMarketData() {
             try {
-                const res = await fetch(`https://api.twelvedata.com/quote?symbol=SENSEX,NIFTY50,GOLD,SILVER,BTC/USD&apikey=89dc6593e9fb4ddf9071da2b5d9db4f0`);
+                const res = await fetch(`https://api.twelvedata.com/quote?symbol=^BSESN,^NSEI,GOLD,SILVER,BTC/USD&apikey=89dc6593e9fb4ddf9071da2b5d9db4f0`);
                 const data = await res.json();
                 let html = "";
                 for (let key in data) {
                     let s = data[key];
-                    // NaN रोकने के लिए चेक
                     let price = (s.close) ? parseFloat(s.close).toFixed(2) : "N/A";
                     let change = (s.percent_change) ? parseFloat(s.percent_change).toFixed(2) : "0.00";
-                    html += `<div class="market-item"><span>${key}</span><span class="${change >= 0 ? 'up' : 'down'}">${price} (${change}%)</span></div>`;
+                    html += `<div class="market-item"><span>${key.replace('^BSESN','SENSEX').replace('^NSEI','NIFTY50')}</span><span class="${change >= 0 ? 'up' : 'down'}">${price} (${change}%)</span></div>`;
                 }
                 document.getElementById('marketResult').innerHTML = html;
             } catch(e) { document.getElementById('marketResult').innerHTML = "डेटा लोड नहीं हो सका."; }
