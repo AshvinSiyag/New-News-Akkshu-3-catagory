@@ -4,7 +4,6 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>HEADLINE NEWS 24×7</title>
-    <!-- AdSense Script -->
     <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-4298712782505661" crossorigin="anonymous"></script>
     <style>
         body { font-family: sans-serif; background: #f4f4f4; text-align: center; margin: 0; padding: 0; }
@@ -14,9 +13,6 @@
         header img { width: 200px; cursor: pointer; margin-top: 20px; }
         .news-card { background: white; padding: 20px; margin: 15px auto; max-width: 600px; border-radius: 10px; cursor: pointer; text-align: left; box-shadow: 0 2px 5px rgba(0,0,0,0.1); }
         .news-card h3 { margin: 0; color: #333; }
-        .vid-tag { color: #d32f2f; font-weight: bold; font-size: 12px; margin-top: 5px; }
-        .share-btn { margin-top: 5px; color: #25d366; font-size: 14px; font-weight: bold; }
-        /* Weather Section */
         #weatherContainer { display: none; padding: 20px; max-width: 600px; margin: 0 auto; background: white; border-radius: 10px; }
     </style>
 </head>
@@ -34,20 +30,15 @@
         <h1>HEADLINE NEWS 24×7</h1>
     </header>
 
-    <!-- Weather & AQI Section -->
     <div id="weatherContainer">
-        <h3>शहर चुनें (Location Selection)</h3>
+        <h3>शहर चुनें</h3>
         <select id="citySelect" onchange="fetchWeatherData()">
             <option value="Ahmedabad">Ahmedabad</option>
             <option value="Surat">Surat</option>
             <option value="Rajkot">Rajkot</option>
         </select>
-        <div id="weatherResult" style="margin-top:20px;">
-            <p>डेटा लोड हो रहा है...</p>
-        </div>
+        <div id="weatherResult" style="margin-top:20px;"></div>
     </div>
-
-    <ins class="adsbygoogle" style="display:block" data-ad-format="fluid" data-ad-layout-key="-fb+5w+4e-db+86" data-ad-client="ca-pub-4298712782505661" data-ad-slot="YOUR_AD_SLOT_ID"></ins>
 
     <div id="newsContainer"></div>
 
@@ -55,7 +46,6 @@
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-firestore.js"></script>
     
     <script>
-        // ... Firebase Config (वही रखें जो पहले था) ...
         const firebaseConfig = { apiKey: "AIzaSyAOTuJcjYGPld5wZYVPHK0jpXKAh561lVU", authDomain: "news-akkshu.firebaseapp.com", projectId: "news-akkshu", storageBucket: "news-akkshu.firebasestorage.app", messagingSenderId: "735024392453", appId: "1:735024392453:web:30f8a1f0832ff36b1fef6c" };
         firebase.initializeApp(firebaseConfig);
         const db = firebase.firestore();
@@ -68,26 +58,43 @@
 
         function fetchWeatherData() {
             const city = document.getElementById('citySelect').value;
-            // यहाँ आप अपनी API Call करेंगे
-            document.getElementById('weatherResult').innerHTML = `<h3>${city} का मौसम और AQI</h3><p>यहाँ API से डेटा आएगा...</p>`;
+            const apiKey = "C3d2062e4f2ab500d532b35b6b6d9059";
+            const url = `https://api.openweathermap.org/data/2.5/weather?q=${city}&units=metric&appid=${apiKey}&lang=hi`;
+
+            document.getElementById('weatherResult').innerHTML = "लोड हो रहा है...";
+
+            fetch(url)
+                .then(response => response.json())
+                .then(data => {
+                    document.getElementById('weatherResult').innerHTML = `
+                        <h3>${city} का मौसम</h3>
+                        <p>तापमान: ${data.main.temp}°C</p>
+                        <p>स्थिति: ${data.weather[0].description}</p>
+                        <p>नमी (Humidity): ${data.main.humidity}%</p>
+                    `;
+                })
+                .catch(err => {
+                    document.getElementById('weatherResult').innerHTML = "डेटा लोड नहीं हो पाया।";
+                });
         }
 
         function loadNews(cat) {
             document.getElementById('newsContainer').style.display = 'block';
             document.getElementById('weatherContainer').style.display = 'none';
-            // ... loadNews वाला पुराना कोड ...
             db.collection("allNews").where("category", "==", cat).orderBy("timestamp", "desc").onSnapshot(snapshot => {
                 const container = document.getElementById('newsContainer');
                 container.innerHTML = '';
                 snapshot.forEach(doc => {
-                    const d = doc.data();
-                    container.innerHTML += `<div class="news-card" onclick="window.location.href='details.html?id=${doc.id}'"><h3>${d.heading}</h3></div>`;
+                    container.innerHTML += `<div class="news-card" onclick="window.location.href='details.html?id=${doc.id}'"><h3>${doc.data().heading}</h3></div>`;
                 });
             });
         }
 
-        // ... बाकि फंक्शन्स (logoClick, etc.) ...
-        function logoClick() { /* ... */ }
+        function logoClick() {
+            let pass = prompt("Enter Admin Password:");
+            if (pass === "Akkshu@love") window.location.href = "admin.html";
+        }
+
         window.onload = function() { loadNews('Hindi'); };
     </script>
 </body>
