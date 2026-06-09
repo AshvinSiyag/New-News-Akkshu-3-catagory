@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="hi">
+<html lang="gu">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -10,14 +10,15 @@
         body { font-family: sans-serif; background: #f4f4f4; text-align: center; margin: 0; padding: 0; }
         .lang-bar { display: flex; flex-wrap: wrap; justify-content: center; padding: 15px; gap: 10px; background: #fff; position: sticky; top: 0; z-index: 1000; }
         button { padding: 10px 15px; cursor: pointer; border: none; background: #d32f2f; color: white; border-radius: 5px; font-weight: bold; }
-        .weather-btn { background: #2575fc; }
+        .weather-btn { background: #4a5568; }
         header img { width: 200px; cursor: pointer; margin-top: 20px; }
         .news-card { background: white; padding: 20px; margin: 15px auto; max-width: 600px; border-radius: 10px; cursor: pointer; text-align: left; box-shadow: 0 2px 5px rgba(0,0,0,0.1); }
         .news-card h3 { margin: 0; color: #333; }
         .vid-tag { color: #d32f2f; font-weight: bold; font-size: 12px; margin-top: 5px; }
         .share-btn { margin-top: 5px; color: #25d366; font-size: 14px; font-weight: bold; }
         /* Weather Section */
-        #weatherContainer { display: none; padding: 20px; max-width: 600px; margin: 0 auto; background: white; border-radius: 10px; }
+        #weatherContainer { display: none; padding: 20px; max-width: 600px; margin: 20px auto; background: #cbd5e0; border-radius: 15px; color: #2d3748; }
+        #citySelect { padding: 10px; border-radius: 5px; width: 100%; max-width: 300px; }
     </style>
 </head>
 <body>
@@ -34,20 +35,18 @@
         <h1>HEADLINE NEWS 24×7</h1>
     </header>
 
-    <!-- Weather & AQI Section -->
     <div id="weatherContainer">
-        <h3>शहर चुनें (Location Selection)</h3>
+        <h3>આજના હવામાનની માહિતી</h3>
         <select id="citySelect" onchange="fetchWeatherData()">
-            <option value="Ahmedabad">Ahmedabad</option>
-            <option value="Surat">Surat</option>
-            <option value="Rajkot">Rajkot</option>
+            <option value="Ahmedabad">અમદાવાદ</option>
+            <option value="Surat">સુરત</option>
+            <option value="Rajkot">રાજકોટ</option>
+            <option value="Vadodara">વડોદરા</option>
         </select>
-        <div id="weatherResult" style="margin-top:20px;">
-            <p>शहर चुनें और डेटा देखें...</p>
+        <div id="weatherResult" style="margin-top:20px; background: rgba(255,255,255,0.7); padding: 15px; border-radius: 10px;">
+            <p>શહેર પસંદ કરો...</p>
         </div>
     </div>
-
-    <ins class="adsbygoogle" style="display:block" data-ad-format="fluid" data-ad-layout-key="-fb+5w+4e-db+86" data-ad-client="ca-pub-4298712782505661" data-ad-slot="YOUR_AD_SLOT_ID"></ins>
 
     <div id="newsContainer"></div>
 
@@ -68,22 +67,22 @@
         function fetchWeatherData() {
             const city = document.getElementById('citySelect').value;
             const apiKey = "c3d2062e4f2ab500d532b35b6b6d9059";
-            const url = `https://api.openweathermap.org/data/2.5/weather?q=${city}&units=metric&appid=${apiKey}`;
+            const url = `https://api.openweathermap.org/data/2.5/weather?q=${city}&units=metric&appid=${apiKey}&lang=gu`;
 
-            document.getElementById('weatherResult').innerHTML = "लोड हो रहा है...";
+            document.getElementById('weatherResult').innerHTML = "માહિતી લોડ થઈ રહી છે...";
 
             fetch(url)
                 .then(response => response.json())
                 .then(data => {
                     document.getElementById('weatherResult').innerHTML = `
-                        <h3>${city} का मौसम</h3>
-                        <p>तापमान: ${data.main.temp}°C</p>
-                        <p>स्थिति: ${data.weather[0].description}</p>
-                        <p>नमी (Humidity): ${data.main.humidity}%</p>
+                        <h3>${city} નું હવામાન</h3>
+                        <p>તાપમાન: ${data.main.temp}°C</p>
+                        <p>સ્થિતિ: ${data.weather[0].description}</p>
+                        <p>ભેજ: ${data.main.humidity}%</p>
                     `;
                 })
                 .catch(err => {
-                    document.getElementById('weatherResult').innerHTML = "डेटा लोड नहीं हो पाया। कृपया थोड़े समय बाद प्रयास करें।";
+                    document.getElementById('weatherResult').innerHTML = "માહિતી લોડ થઈ શકી નથી.";
                 });
         }
 
@@ -95,9 +94,11 @@
                 container.innerHTML = '';
                 snapshot.forEach(doc => {
                     const d = doc.data();
+                    let videoTag = d.videoUrl ? '<div class="vid-tag">▶ Video News</div>' : '';
                     container.innerHTML += `
                         <div class="news-card" onclick="window.location.href='details.html?id=${doc.id}'">
                             <h3>${d.heading}</h3>
+                            ${videoTag}
                             <div class="share-btn">Read & Share ➔</div>
                         </div>`;
                 });
