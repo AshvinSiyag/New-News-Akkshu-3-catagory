@@ -29,7 +29,6 @@
 
     <img src="1000678471.png" id="logo" onclick="logoClick()">
 
-    <!-- Panel for Weather & Market -->
     <div id="mainPanel" class="main-panel">
         <div id="weatherContainer" style="display:none;">
             <h3>ગુજરાતના જિલ્લા અને ગામ પસંદ કરો</h3>
@@ -48,7 +47,6 @@
         </div>
     </div>
 
-    <!-- Separate Container for News -->
     <div id="newsContainer"></div>
     
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
@@ -63,10 +61,11 @@
             document.getElementById('mainPanel').style.display = 'none';
             document.getElementById('weatherContainer').style.display = 'none';
             document.getElementById('marketContainer').style.display = 'none';
-            document.getElementById('newsContainer').innerHTML = '';
         }
 
         function showSection(id) {
+            document.getElementById('newsContainer').innerHTML = ''; // न्यूज़ साफ करें
+            document.getElementById('mainPanel').style.display = 'block';
             clearDisplay();
             document.getElementById('mainPanel').style.display = 'block';
             document.getElementById(id).style.display = 'block';
@@ -76,6 +75,7 @@
 
         function loadNews(cat) {
             clearDisplay();
+            document.getElementById('mainPanel').style.display = 'none';
             db.collection("allNews").where("category", "==", cat).orderBy("timestamp", "desc").onSnapshot(s => {
                 const c = document.getElementById('newsContainer');
                 c.innerHTML = '';
@@ -87,15 +87,19 @@
         }
 
         async function fetchMarketData() {
-            const res = await fetch(`https://api.twelvedata.com/quote?symbol=SENSEX,NIFTY50,GOLD,SILVER,BTC/USD&apikey=89dc6593e9fb4ddf9071da2b5d9db4f0`);
-            const data = await res.json();
-            let html = "";
-            for (let key in data) {
-                let s = data[key];
-                let change = parseFloat(s.percent_change).toFixed(2);
-                html += `<div class="market-item"><span>${key}</span><span class="${change >= 0 ? 'up' : 'down'}">${parseFloat(s.close).toFixed(2)} (${change}%)</span></div>`;
-            }
-            document.getElementById('marketResult').innerHTML = html;
+            try {
+                const res = await fetch(`https://api.twelvedata.com/quote?symbol=SENSEX,NIFTY50,GOLD,SILVER,BTC/USD&apikey=89dc6593e9fb4ddf9071da2b5d9db4f0`);
+                const data = await res.json();
+                let html = "";
+                for (let key in data) {
+                    let s = data[key];
+                    // NaN रोकने के लिए चेक
+                    let price = (s.close) ? parseFloat(s.close).toFixed(2) : "N/A";
+                    let change = (s.percent_change) ? parseFloat(s.percent_change).toFixed(2) : "0.00";
+                    html += `<div class="market-item"><span>${key}</span><span class="${change >= 0 ? 'up' : 'down'}">${price} (${change}%)</span></div>`;
+                }
+                document.getElementById('marketResult').innerHTML = html;
+            } catch(e) { document.getElementById('marketResult').innerHTML = "डेटा लोड नहीं हो सका."; }
         }
 
         async function fetchWeatherData() {
@@ -118,8 +122,8 @@
                 if (pass === "Akkshu@love") window.location.href = "admin.html";
             }
         }
-
         window.onload = () => loadNews('Gujarati');
     </script>
 </body>
 </html>
+
