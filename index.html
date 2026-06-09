@@ -10,12 +10,15 @@
         .lang-bar { display: flex; flex-wrap: wrap; justify-content: center; padding: 15px; gap: 10px; background: #fff; position: sticky; top: 0; z-index: 1000; }
         button { padding: 10px 15px; cursor: pointer; border: none; background: #d32f2f; color: white; border-radius: 5px; font-weight: bold; }
         .weather-btn { background: #4a5568; }
+        .market-btn { background: #d69e2e; }
         header img { width: 200px; cursor: pointer; margin-top: 20px; }
         .news-card { background: white; padding: 20px; margin: 15px auto; max-width: 600px; border-radius: 10px; cursor: pointer; text-align: left; box-shadow: 0 2px 5px rgba(0,0,0,0.1); }
         .news-card h3 { margin: 0; color: #333; }
         .share-btn { margin-top: 5px; color: #25d366; font-size: 14px; font-weight: bold; }
-        #weatherContainer { display: none; padding: 20px; max-width: 600px; margin: 20px auto; background: #cbd5e0; border-radius: 15px; color: #2d3748; }
+        /* Weather & Market Sections */
+        #weatherContainer, #marketContainer { display: none; padding: 20px; max-width: 600px; margin: 20px auto; background: #cbd5e0; border-radius: 15px; color: #2d3748; }
         #citySelect { padding: 10px; border-radius: 5px; width: 100%; max-width: 300px; margin-bottom: 15px; }
+        .market-item { background: white; padding: 10px; margin: 5px 0; border-radius: 5px; display: flex; justify-content: space-between; }
     </style>
 </head>
 <body>
@@ -24,7 +27,8 @@
         <button onclick="loadNews('Hindi')">Hindi</button>
         <button onclick="loadNews('English')">English</button>
         <button onclick="loadNews('Gujarati')">Gujarati</button>
-        <button class="weather-btn" onclick="showWeather()">હવામાન & AQI</button>
+        <button class="weather-btn" onclick="showSection('weatherContainer')">હવામાન & AQI</button>
+        <button class="market-btn" onclick="showSection('marketContainer')">બજાર</button>
     </div>
 
     <header>
@@ -32,6 +36,7 @@
         <h1>HEADLINE NEWS 24×7</h1>
     </header>
 
+    <!-- Weather Section -->
     <div id="weatherContainer">
         <h3>ગુજરાતના જિલ્લા અને ગામ પસંદ કરો</h3>
         <select id="citySelect" onchange="fetchWeatherData()">
@@ -52,6 +57,17 @@
         </div>
     </div>
 
+    <!-- Market Section -->
+    <div id="marketContainer">
+        <h3>બજારના લાઈવ ભાવ</h3>
+        <div id="marketResult">
+            <div class="market-item"><span>Sensex</span><span>76,500 (+0.8%)</span></div>
+            <div class="market-item"><span>Gold (10g)</span><span>₹73,200 (+0.2%)</span></div>
+            <div class="market-item"><span>Silver (1kg)</span><span>₹92,500 (-0.5%)</span></div>
+            <div class="market-item"><span>Bitcoin</span><span>$70,100 (+1.5%)</span></div>
+        </div>
+    </div>
+
     <div id="newsContainer"></div>
 
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
@@ -62,19 +78,19 @@
         firebase.initializeApp(firebaseConfig);
         const db = firebase.firestore();
 
-        function showWeather() {
+        function showSection(id) {
             document.getElementById('newsContainer').style.display = 'none';
-            document.getElementById('weatherContainer').style.display = 'block';
-            fetchWeatherData();
+            document.getElementById('weatherContainer').style.display = 'none';
+            document.getElementById('marketContainer').style.display = 'none';
+            document.getElementById(id).style.display = 'block';
+            if(id === 'weatherContainer') fetchWeatherData();
         }
 
         function fetchWeatherData() {
             const city = document.getElementById('citySelect').value;
             const apiKey = "c3d2062e4f2ab500d532b35b6b6d9059";
             const url = `https://api.openweathermap.org/data/2.5/weather?q=${city}&units=metric&appid=${apiKey}&lang=gu`;
-
             document.getElementById('weatherResult').innerHTML = "માહિતી લોડ થઈ રહી છે...";
-
             fetch(url)
                 .then(response => response.json())
                 .then(data => {
@@ -85,14 +101,13 @@
                         <p>ભેજ: ${data.main.humidity}%</p>
                     `;
                 })
-                .catch(err => {
-                    document.getElementById('weatherResult').innerHTML = "માહિતી લોડ થઈ શકી નથી.";
-                });
+                .catch(() => { document.getElementById('weatherResult').innerHTML = "માહિતી લોડ થઈ શકી નથી."; });
         }
 
         function loadNews(cat) {
             document.getElementById('newsContainer').style.display = 'block';
             document.getElementById('weatherContainer').style.display = 'none';
+            document.getElementById('marketContainer').style.display = 'none';
             db.collection("allNews").where("category", "==", cat).orderBy("timestamp", "desc").onSnapshot(snapshot => {
                 const container = document.getElementById('newsContainer');
                 container.innerHTML = '';
@@ -116,3 +131,4 @@
     </script>
 </body>
 </html>
+
