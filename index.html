@@ -448,12 +448,9 @@
         `<svg xmlns="http://www.w3.org/2000/svg" width="200" height="120"><rect width="200" height="120" fill="%23F6F4EC"/></svg>`
       );
       c.innerHTML = docs.map(d => {
-        const openTarget = d.externalLink
-          ? `window.open('${d.externalLink}','_blank')`
-          : (d.videoUrl ? `window.open('${d.videoUrl}','_blank')` : `window.location.href='details.html?id=${d.id}'`);
         const img = d.image || d.imageUrl || '';
         return `
-        <div class="news-card ${catClass}" onclick="${openTarget}">
+        <div class="news-card ${catClass}" onclick="window.location.href='details.html?id=${d.id}'">
           <img class="thumb" src="${img || placeholderImg}" alt="" loading="lazy" onerror="this.src='${placeholderImg}'">
           <div class="body">
             <span class="tag">${CAT_LABELS[currentCat] || currentCat}${d.videoUrl ? ' · ▶ Video' : ''}${d.externalLink ? ' · ↗ Link' : ''}</span>
@@ -578,4 +575,3 @@
   </script>
 </body>
 </html>
-
