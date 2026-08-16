@@ -1,118 +1,214 @@
 <!DOCTYPE html>
-<html lang="hi">
+<html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>News Details - HEADLINE NEWS 24×7</title>
-    <meta property="og:type" content="article">
-    <meta property="og:title" id="og-title" content="HEADLINE NEWS 24×7">
-    <meta property="og:description" id="og-desc" content="पूरी खबर पढ़ने के लिए यहाँ क्लिक करें।">
-    <meta property="og:image" id="og-image" content="">
-    
-    <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-4298712782505661" crossorigin="anonymous"></script>
-    <style>
-        body { font-family: sans-serif; padding: 20px; line-height: 1.6; background: #f9f9f9; }
-        .container { max-width: 800px; margin: 0 auto; background: white; padding: 20px; border-radius: 10px; box-shadow: 0 2px 5px rgba(0,0,0,0.1); }
-        .logo-header { text-align: center; margin-bottom: 20px; }
-        .logo-header img { width: 150px; cursor: pointer; }
-        .back-btn { display: inline-block; margin-bottom: 20px; padding: 10px 15px; background: #333; color: white; text-decoration: none; border-radius: 5px; }
-        .news-image { width: 100%; border-radius: 8px; margin-top: 15px; }
-        .ad-container { margin: 20px 0; min-height: 100px; text-align: center; }
-        .share-btn { background: #25d366; color: white; border: none; padding: 12px; width: 100%; border-radius: 5px; cursor: pointer; font-weight: bold; margin: 20px 0; font-size: 16px; }
-        .stats { color: #555; font-size: 14px; margin-bottom: 10px; }
-        .more-news { margin-top: 40px; border-top: 2px solid #ddd; padding-top: 20px; }
-        .more-item { padding: 15px; border-bottom: 1px solid #eee; cursor: pointer; color: #d32f2f; font-weight: bold; }
-    </style>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title id="pageTitle">Headline News 24×7</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Oswald:wght@500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-4298712782505661" crossorigin="anonymous"></script>
+<script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
+<script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-firestore.js"></script>
+<style>
+  :root{
+    --ink:#0B1F3A; --ink-2:#122B52; --paper:#F6F4EC; --card:#FFFFFF;
+    --amber:#E8A33D; --amber-deep:#C97F17; --red:#C0392B; --green:#1B7A4D;
+    --charcoal:#1B1D22; --steel:#69707D; --line:#E4E0D4;
+  }
+  *{box-sizing:border-box;}
+  body{margin:0;background:var(--paper);color:var(--charcoal);font-family:'Segoe UI',sans-serif;}
+
+  header{
+    background:var(--ink);padding:16px;display:flex;align-items:center;justify-content:space-between;
+    position:sticky;top:0;z-index:100;
+  }
+  header a.brand{display:flex;align-items:center;gap:10px;text-decoration:none;}
+  header img{width:34px;height:34px;border-radius:8px;object-fit:cover;}
+  header .t{color:#F1E9D8;font-family:'Oswald',sans-serif;font-weight:700;font-size:14px;text-transform:uppercase;letter-spacing:.03em;}
+  header .back{color:var(--amber);font-size:13px;font-weight:700;text-decoration:none;}
+
+  main{max-width:640px;margin:0 auto;padding:0 0 50px;}
+  .hero-img{width:100%;aspect-ratio:16/10;object-fit:cover;background:var(--line);display:block;}
+  .article-body{padding:20px 18px;}
+  .tag{
+    display:inline-block;font-family:'Oswald',sans-serif;font-size:11px;font-weight:700;
+    letter-spacing:.08em;text-transform:uppercase;color:#fff;background:var(--ink);
+    padding:5px 12px;border-radius:999px;margin-bottom:14px;
+  }
+  h1{
+    font-family:'Oswald',sans-serif;text-transform:none;letter-spacing:0;
+    font-size:24px;line-height:1.3;color:var(--charcoal);margin:0 0 10px;font-weight:700;
+  }
+  .meta-row{font-family:'JetBrains Mono',monospace;font-size:11.5px;color:var(--steel);margin-bottom:20px;}
+  .article-text{font-size:16px;line-height:1.85;color:var(--charcoal);}
+  .article-text p{margin:0 0 16px;}
+
+  .embed-card{
+    margin:26px 0;padding:14px;background:var(--card);border:1px solid var(--line);
+    border-radius:12px;max-width:340px;
+  }
+  .embed-label{
+    font-family:'Oswald',sans-serif;font-size:10.5px;font-weight:700;letter-spacing:.08em;
+    text-transform:uppercase;color:var(--steel);margin-bottom:10px;
+  }
+  .link-card{
+    display:flex;align-items:center;gap:10px;text-decoration:none;color:var(--charcoal);
+  }
+  .link-card .dot{width:8px;height:8px;border-radius:50%;background:var(--amber-deep);flex:0 0 auto;}
+  .link-card .domain{font-weight:700;font-size:13.5px;}
+  .link-card .go{margin-left:auto;color:var(--ink);font-size:12px;font-weight:700;}
+
+  .video-embed{margin:24px 0;border-radius:12px;overflow:hidden;background:#000;}
+  .video-embed iframe, .video-embed video{width:100%;aspect-ratio:16/9;display:block;border:none;}
+
+  .share-row{display:flex;gap:10px;margin-top:26px;flex-wrap:wrap;}
+  .share-btn{
+    display:inline-flex;align-items:center;gap:6px;font-size:13px;font-weight:700;
+    padding:9px 14px;border-radius:8px;border:1.5px solid var(--line);text-decoration:none;color:var(--charcoal);
+  }
+  .share-btn.whatsapp{border-color:#25d366;color:#128c47;}
+
+  .loading, .error{text-align:center;padding:60px 20px;color:var(--steel);font-size:14px;}
+</style>
 </head>
 <body>
-    <div class="container">
-        <div class="logo-header">
-            <img src="1000678471.png" onclick="window.location.href='index.html'">
-        </div>
-        <a href="index.html" class="back-btn">← Back</a>
-        
-        <div id="newsContent">Loading news...</div>
 
-        <div class="more-news">
-            <h3>Read More News</h3>
-            <div id="moreNewsList"></div>
-        </div>
-    </div>
+  <header>
+    <a class="brand" href="index.html">
+      <img src="1000678471.png" alt="Headline News 24×7 logo">
+      <div class="t">Headline News 24×7</div>
+    </a>
+    <a class="back" href="index.html">← Home</a>
+  </header>
 
-    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-firestore.js"></script>
-    <script>
-        const firebaseConfig = { apiKey: "AIzaSyAOTuJcjYGPld5wZYVPHK0jpXKAh561lVU", authDomain: "news-akkshu.firebaseapp.com", projectId: "news-akkshu", storageBucket: "news-akkshu.firebasestorage.app", messagingSenderId: "735024392453", appId: "1:735024392453:web:30f8a1f0832ff36b1fef6c" };
-        firebase.initializeApp(firebaseConfig);
-        const db = firebase.firestore();
-        const id = new URLSearchParams(window.location.search).get('id');
+  <main id="mainContent">
+    <div class="loading">Loading article...</div>
+  </main>
 
-        function createAd() {
-            return `<div class="ad-container"><ins class="adsbygoogle" style="display:block" data-ad-format="auto" data-ad-full-width-responsive="true" data-ad-client="ca-pub-4298712782505661"></ins></div>`;
-        }
+  <script>
+    const firebaseConfig = {
+      apiKey: "AIzaSyAOTuJcjYGPld5wZYVPHK0jpXKAh561lVU",
+      authDomain: "news-akkshu.firebaseapp.com",
+      projectId: "news-akkshu",
+      storageBucket: "news-akkshu.firebasestorage.app",
+      messagingSenderId: "735024392453",
+      appId: "1:735024392453:web:30f8a1f0832ff36b1fef6c"
+    };
+    firebase.initializeApp(firebaseConfig);
+    const db = firebase.firestore();
 
-        if (id) {
-            const docRef = db.collection("allNews").doc(id);
-            docRef.update({ views: firebase.firestore.FieldValue.increment(1) }).catch(() => {});
+    function getParam(name) {
+      return new URLSearchParams(window.location.search).get(name);
+    }
 
-            docRef.onSnapshot(doc => {
-                if (doc.exists) {
-                    const d = doc.data();
-                    
-                    // शेयरिंग के लिए मेटा टैग्स अपडेट करें
-                    document.getElementById('og-title').setAttribute('content', d.heading);
-                    document.getElementById('og-image').setAttribute('content', d.image);
-                    document.title = d.heading + " - HEADLINE NEWS 24×7";
-                    
-                    let dateStr = "";
-                    if (d.timestamp) {
-                        const date = d.timestamp.toDate();
-                        dateStr = date.toLocaleDateString('hi-IN') + " " + date.toLocaleTimeString('hi-IN', {hour: '2-digit', minute:'2-digit'});
-                    }
+    function escapeHtml(str) {
+      const d = document.createElement('div');
+      d.textContent = str || '';
+      return d.innerHTML;
+    }
 
-                    let topFixAd = createAd(); 
-                    let bottomFixAd = createAd();
-                    let extraAds = [];
-                    if (d.adOption === "banner" || d.adOption === "all") {
-                        let count = parseInt(d.adCount) || 0;
-                        for(let i = 0; i < count; i++) { extraAds.push(createAd()); }
-                    }
+    function paragraphize(text) {
+      return (text || '')
+        .split(/\n+/)
+        .filter(p => p.trim())
+        .map(p => `<p>${escapeHtml(p)}</p>`);
+    }
 
-                    let paragraphs = d.details.split('\n\n');
-                    let htmlContent = "";
-                    paragraphs.forEach((p, index) => {
-                        htmlContent += `<p style="white-space: pre-line;">${p}</p>`;
-                        if (index === 0 && extraAds[0]) htmlContent += extraAds[0];
-                        if (index === Math.floor(paragraphs.length / 2) && extraAds[1]) htmlContent += extraAds[1];
-                        if (index === paragraphs.length - 1 && extraAds[2]) htmlContent += extraAds[2];
-                    });
+    // Builds a small embedded card for the externalLink — placed inside the article, not a redirect.
+    function buildLinkEmbed(url) {
+      let host = '';
+      try { host = new URL(url).hostname.replace('www.', ''); } catch (e) { host = url; }
 
-                    document.getElementById('newsContent').innerHTML = `
-                        <h1>${d.heading}</h1>
-                        <p class="stats">📅 ${dateStr} | 👁️ ${d.views || 0} Views</p>
-                        ${topFixAd}
-                        <img src="${d.image}" class="news-image">
-                        ${htmlContent}
-                        <button class="share-btn" onclick="window.open('https://wa.me/?text='+encodeURIComponent(document.title+'\\n\\nयहाँ पढ़ें: '+window.location.href))">WhatsApp पर शेयर करें</button>
-                        ${bottomFixAd}
-                    `;
-                    
-                    const ads = document.getElementsByClassName('adsbygoogle');
-                    for (let i = 0; i < ads.length; i++) { (adsbygoogle = window.adsbygoogle || []).push({}); }
-                }
-            });
-        }
+      const isTwitter = /(^|\.)(twitter\.com|x\.com)$/.test(host);
+      const isTweetStatus = isTwitter && /\/status\/\d+/.test(url);
 
-        db.collection("allNews").orderBy("timestamp", "desc").limit(5).onSnapshot(snapshot => {
-            const list = document.getElementById('moreNewsList');
-            list.innerHTML = '';
-            snapshot.forEach(doc => {
-                if(doc.id !== id) {
-                    list.innerHTML += `<div class="more-item" onclick="window.location.href='details.html?id=${doc.id}'">${doc.data().heading}</div>`;
-                }
-            });
+      if (isTweetStatus) {
+        // Official Twitter/X tweet embed — small card, loads via widgets.js
+        return `
+          <div class="embed-card">
+            <div class="embed-label">From X / Twitter</div>
+            <blockquote class="twitter-tweet" data-conversation="none" data-theme="light" data-dnt="true">
+              <a href="${url}"></a>
+            </blockquote>
+          </div>`;
+      }
+      if (isTwitter) {
+        // Profile link (not a specific tweet) — compact timeline embed
+        return `
+          <div class="embed-card">
+            <div class="embed-label">On X / Twitter</div>
+            <a class="twitter-timeline" data-height="260" data-theme="light" href="${url}">Tweets</a>
+          </div>`;
+      }
+      // Any other external site — small clickable card, opens in a new tab only if user taps it
+      return `
+        <div class="embed-card">
+          <div class="embed-label">Related Link</div>
+          <a class="link-card" href="${url}" target="_blank" rel="noopener noreferrer">
+            <span class="dot"></span>
+            <span class="domain">${host}</span>
+            <span class="go">Open ↗</span>
+          </a>
+        </div>`;
+    }
+
+    function buildVideoEmbed(url) {
+      const yt = url.match(/(?:youtu\.be\/|youtube\.com\/(?:watch\?v=|embed\/|shorts\/))([\w-]{6,})/);
+      if (yt) {
+        return `<div class="video-embed"><iframe src="https://www.youtube.com/embed/${yt[1]}" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe></div>`;
+      }
+      return `<div class="video-embed"><video src="${url}" controls></video></div>`;
+    }
+
+    async function loadArticle() {
+      const id = getParam('id');
+      const main = document.getElementById('mainContent');
+      if (!id) { main.innerHTML = `<div class="error">No article specified.</div>`; return; }
+
+      try {
+        const doc = await db.collection('allNews').doc(id).get();
+        if (!doc.exists) { main.innerHTML = `<div class="error">This article could not be found.</div>`; return; }
+        const d = doc.data();
+        const section = d.section || 'News';
+        const img = d.image || d.imageUrl || '';
+        const paras = paragraphize(d.details);
+        // Insert the link/tweet embed after the first paragraph so it sits inside the article, not up top.
+        let bodyHtml = '';
+        paras.forEach((p, i) => {
+          bodyHtml += p;
+          if (i === 0 && d.externalLink) bodyHtml += buildLinkEmbed(d.externalLink);
         });
-    </script>
+        if (!paras.length && d.externalLink) bodyHtml += buildLinkEmbed(d.externalLink);
+        if (d.videoUrl) bodyHtml += buildVideoEmbed(d.videoUrl);
+
+        document.getElementById('pageTitle').textContent = (d.heading || 'Article') + ' | Headline News 24×7';
+
+        main.innerHTML = `
+          ${img ? `<img class="hero-img" src="${img}" alt="" onerror="this.style.display='none'">` : ''}
+          <div class="article-body">
+            <span class="tag">${section}</span>
+            <h1>${escapeHtml(d.heading)}</h1>
+            <div class="meta-row">${d.timestamp && d.timestamp.toDate ? d.timestamp.toDate().toLocaleString() : ''}</div>
+            <div class="article-text">${bodyHtml || '<p>Full details coming soon.</p>'}</div>
+            <div class="share-row">
+              <a class="share-btn whatsapp" href="https://wa.me/?text=${encodeURIComponent((d.heading || '') + ' ' + window.location.href)}" target="_blank" rel="noopener">Share on WhatsApp</a>
+              <a class="share-btn" href="index.html">More News</a>
+            </div>
+          </div>`;
+
+        // Load Twitter widgets.js only if we actually embedded a tweet/timeline
+        if (d.externalLink && /(^|\.)(twitter\.com|x\.com)$/.test((() => { try { return new URL(d.externalLink).hostname.replace('www.', ''); } catch (e) { return ''; } })())) {
+          const s = document.createElement('script');
+          s.src = 'https://platform.twitter.com/widgets.js';
+          s.async = true;
+          document.body.appendChild(s);
+        }
+      } catch (e) {
+        main.innerHTML = `<div class="error">Could not load this article. Please try again.</div>`;
+      }
+    }
+
+    loadArticle();
+  </script>
 </body>
 </html>
-
