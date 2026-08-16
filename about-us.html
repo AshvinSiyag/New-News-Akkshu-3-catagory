@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>About Us | Headline News 24×7</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Oswald:wght@600;700&display=swap" rel="stylesheet">
+<style>
+  :root{--ink:#0B1F3A;--paper:#F6F4EC;--card:#FFFFFF;--amber:#E8A33D;--charcoal:#1B1D22;--steel:#69707D;--line:#E4E0D4;}
+  *{box-sizing:border-box;}
+  body{margin:0;background:var(--paper);color:var(--charcoal);font-family:'Segoe UI',sans-serif;}
+  header{background:var(--ink);padding:18px 16px;display:flex;align-items:center;justify-content:space-between;}
+  header a.brand{display:flex;align-items:center;gap:10px;text-decoration:none;}
+  .brand-mark{width:36px;height:36px;border-radius:8px;background:linear-gradient(135deg,#0B1F3A,#122B52);color:var(--amber);font-family:'Oswald',sans-serif;font-weight:700;font-size:14px;display:flex;align-items:center;justify-content:center;}
+  header span{color:#F1E9D8;font-family:'Oswald',sans-serif;font-weight:700;font-size:15px;text-transform:uppercase;letter-spacing:.03em;}
+  header a.switch{color:#F1E9D8;text-decoration:none;font-size:12px;font-weight:700;border:1px solid rgba(255,255,255,.3);padding:6px 10px;border-radius:8px;}
+  main{max-width:640px;margin:0 auto;padding:28px 18px 50px;}
+  h1{font-family:'Oswald',sans-serif;text-transform:uppercase;color:var(--ink);font-size:22px;border-left:4px solid var(--amber);padding-left:12px;margin-bottom:18px;}
+  .card{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:20px;line-height:1.8;font-size:15px;}
+  .card p{margin:0 0 14px;}
+  footer{text-align:center;padding:20px;color:var(--steel);font-size:11px;}
+  a.back{color:var(--ink);font-size:12px;font-weight:700;}
+</style>
+</head>
+<body>
+  <header>
+    <a class="brand" href="index.html"><img src="1000678471.png" alt="Headline News 24×7 logo" style="width:36px;height:36px;border-radius:8px;object-fit:cover;"><span>Headline News 24×7</span></a>
+  </header>
+  <main>
+    <h1>About Us</h1>
+    <div class="card">
+      <p>Headline News 24×7 is a digital news platform based in Deesa, Gujarat, bringing readers the latest news, live stock market prices, IPO updates and weather information — all in one place.</p>
+      <p>Our goal is simple: deliver fast, accurate, and easy-to-understand information to people across every town and village in Gujarat, whether it's local news, national events, or market movements.</p>
+      <p>Our team works continuously to make sure readers get reliable, up-to-date content they can trust.</p>
+    </div>
+    <p style="margin-top:20px;"><a class="back" href="index.html">← Back to Home</a></p>
+  </main>
+  <footer>© <span id="year"></span> Headline News 24×7</footer>
+  <script>document.getElementById('year').textContent = new Date().getFullYear();</script>
+</body>
+</html>

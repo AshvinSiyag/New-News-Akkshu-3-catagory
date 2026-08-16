@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Privacy Policy | Headline News 24×7</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Oswald:wght@600;700&display=swap" rel="stylesheet">
+<style>
+  :root{--ink:#0B1F3A;--paper:#F6F4EC;--card:#FFFFFF;--amber:#E8A33D;--charcoal:#1B1D22;--steel:#69707D;--line:#E4E0D4;}
+  *{box-sizing:border-box;}
+  body{margin:0;background:var(--paper);color:var(--charcoal);font-family:'Segoe UI',sans-serif;}
+  header{background:var(--ink);padding:18px 16px;display:flex;align-items:center;justify-content:space-between;}
+  header a.brand{display:flex;align-items:center;gap:10px;text-decoration:none;}
+  .brand-mark{width:36px;height:36px;border-radius:8px;background:linear-gradient(135deg,#0B1F3A,#122B52);color:var(--amber);font-family:'Oswald',sans-serif;font-weight:700;font-size:14px;display:flex;align-items:center;justify-content:center;}
+  header span{color:#F1E9D8;font-family:'Oswald',sans-serif;font-weight:700;font-size:15px;text-transform:uppercase;letter-spacing:.03em;}
+  header a.switch{color:#F1E9D8;text-decoration:none;font-size:12px;font-weight:700;border:1px solid rgba(255,255,255,.3);padding:6px 10px;border-radius:8px;}
+  main{max-width:640px;margin:0 auto;padding:28px 18px 50px;}
+  h1{font-family:'Oswald',sans-serif;text-transform:uppercase;color:var(--ink);font-size:22px;border-left:4px solid var(--amber);padding-left:12px;margin-bottom:18px;}
+  h2{font-family:'Oswald',sans-serif;text-transform:uppercase;font-size:14px;color:var(--ink);margin:22px 0 8px;}
+  .card{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:20px;line-height:1.8;font-size:14.5px;}
+  .card p{margin:0 0 12px;}
+  .updated{font-size:11px;color:var(--steel);margin-bottom:16px;}
+  footer{text-align:center;padding:20px;color:var(--steel);font-size:11px;}
+  a.back{color:var(--ink);font-size:12px;font-weight:700;}
+</style>
+</head>
+<body>
+  <header>
+    <a class="brand" href="index.html"><img src="1000678471.png" alt="Headline News 24×7 logo" style="width:36px;height:36px;border-radius:8px;object-fit:cover;"><span>Headline News 24×7</span></a>
+  </header>
+  <main>
+    <h1>Privacy Policy</h1>
+    <p class="updated">Last updated: <span id="date"></span></p>
+    <div class="card">
+      <p>This Privacy Policy explains how Headline News 24×7 (amazybuy.shop) collects, uses, and protects information about our users.</p>
+
+      <h2>Information We Collect</h2>
+      <p>We may collect your name and email address (if you contact us), along with non-personal usage data such as browser type and device information.</p>
+
+      <h2>Advertising</h2>
+      <p>Our website uses third-party advertising services such as Google AdSense, which may use cookies to show ads relevant to your interests. Google's own privacy policy applies to this data.</p>
+
+      <h2>Data Security</h2>
+      <p>We take reasonable technical measures to protect your information, though no method of transmission over the internet can be guaranteed 100% secure.</p>
+
+      <h2>Contact</h2>
+      <p>If you have any questions about this policy, please reach us via the <a href="contact-us-en.html" style="color:var(--ink);">Contact Us</a> page.</p>
+    </div>
+    <p style="margin-top:20px;"><a class="back" href="index.html">← Back to Home</a></p>
+  </main>
+  <footer>© <span id="year"></span> Headline News 24×7</footer>
+  <script>
+    document.getElementById('year').textContent = new Date().getFullYear();
+    document.getElementById('date').textContent = new Date().toLocaleDateString('en-GB');
+  </script>
+</body>
+</html>

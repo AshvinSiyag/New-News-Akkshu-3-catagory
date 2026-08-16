@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Disclaimer | Headline News 24×7</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Oswald:wght@600;700&display=swap" rel="stylesheet">
+<style>
+  :root{--ink:#0B1F3A;--paper:#F6F4EC;--card:#FFFFFF;--amber:#E8A33D;--charcoal:#1B1D22;--steel:#69707D;--line:#E4E0D4;}
+  *{box-sizing:border-box;}
+  body{margin:0;background:var(--paper);color:var(--charcoal);font-family:'Segoe UI',sans-serif;}
+  header{background:var(--ink);padding:18px 16px;display:flex;align-items:center;justify-content:space-between;}
+  header a.brand{display:flex;align-items:center;gap:10px;text-decoration:none;}
+  .brand-mark{width:36px;height:36px;border-radius:8px;background:linear-gradient(135deg,#0B1F3A,#122B52);color:var(--amber);font-family:'Oswald',sans-serif;font-weight:700;font-size:14px;display:flex;align-items:center;justify-content:center;}
+  header span{color:#F1E9D8;font-family:'Oswald',sans-serif;font-weight:700;font-size:15px;text-transform:uppercase;letter-spacing:.03em;}
+  header a.switch{color:#F1E9D8;text-decoration:none;font-size:12px;font-weight:700;border:1px solid rgba(255,255,255,.3);padding:6px 10px;border-radius:8px;}
+  main{max-width:640px;margin:0 auto;padding:28px 18px 50px;}
+  h1{font-family:'Oswald',sans-serif;text-transform:uppercase;color:var(--ink);font-size:22px;border-left:4px solid var(--amber);padding-left:12px;margin-bottom:18px;}
+  h2{font-family:'Oswald',sans-serif;text-transform:uppercase;font-size:14px;color:var(--ink);margin:22px 0 8px;}
+  .card{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:20px;line-height:1.8;font-size:14.5px;}
+  .card p{margin:0 0 12px;}
+  footer{text-align:center;padding:20px;color:var(--steel);font-size:11px;}
+  a.back{color:var(--ink);font-size:12px;font-weight:700;}
+</style>
+</head>
+<body>
+  <header>
+    <a class="brand" href="index.html"><img src="1000678471.png" alt="Headline News 24×7 logo" style="width:36px;height:36px;border-radius:8px;object-fit:cover;"><span>Headline News 24×7</span></a>
+  </header>
+  <main>
+    <h1>Disclaimer</h1>
+    <div class="card">
+      <h2>General Information</h2>
+      <p>All news, articles, and information published on Headline News 24×7 are provided for general informational purposes only.</p>
+
+      <h2>Stock Market / IPO</h2>
+      <p>Stock market rates, IPO details, and market-related information shown on our site do not constitute investment advice. Please consult a SEBI-registered financial advisor before making any investment decisions. Data may be delayed or contain errors.</p>
+
+      <h2>Weather Information</h2>
+      <p>Weather data is retrieved through a third-party API and cannot be guaranteed to be 100% accurate.</p>
+
+      <h2>Limitation of Liability</h2>
+      <p>Headline News 24×7 shall not be held liable for any loss or damage arising from the use of this website.</p>
+    </div>
+    <p style="margin-top:20px;"><a class="back" href="index.html">← Back to Home</a></p>
+  </main>
+  <footer>© <span id="year"></span> Headline News 24×7</footer>
+  <script>document.getElementById('year').textContent = new Date().getFullYear();</script>
+</body>
+</html>
