@@ -211,12 +211,27 @@
 
   .feed-header{
     max-width:720px;margin:0 auto;padding:4px 16px 4px;
-    display:flex;align-items:baseline;justify-content:space-between;
+    display:flex;align-items:center;justify-content:space-between;
   }
   .feed-header h2{font-size:15px;color:var(--ink);}
+  .feed-header .right{display:flex;align-items:center;gap:10px;}
   .feed-header span{font-size:11px;color:var(--steel);font-family:'JetBrains Mono',monospace;}
+  .view-toggle{
+    display:flex;border:1.5px solid var(--ink);border-radius:8px;overflow:hidden;flex:0 0 auto;
+  }
+  .view-toggle button{
+    background:transparent;border:none;padding:6px 9px;cursor:pointer;
+    display:flex;align-items:center;justify-content:center;
+  }
+  .view-toggle button svg{width:14px;height:14px;stroke:var(--ink);}
+  .view-toggle button.active{background:var(--ink);}
+  .view-toggle button.active svg{stroke:var(--amber);}
 
   #newsContainer{max-width:720px;margin:0 auto;padding:8px 16px 40px;}
+  #newsContainer.grid-view{
+    display:grid;grid-template-columns:1fr 1fr;gap:12px;
+  }
+  #newsContainer.grid-view .news-card{margin-bottom:0;}
   .news-card{
     background:var(--card);
     border:1px solid var(--line);
@@ -225,10 +240,22 @@
     padding:16px;margin-bottom:12px;
     cursor:pointer;text-align:left;
     transition:.15s;
+    overflow:hidden;
   }
   .news-card:active{transform:scale(.99);}
   .news-card.stocks{border-left-color:var(--green);}
   .news-card.ipo{border-left-color:var(--amber-deep);}
+  .news-card .thumb{
+    width:100%;aspect-ratio:16/10;object-fit:cover;
+    border-radius:7px;background:var(--paper);display:block;margin-bottom:10px;
+  }
+  #newsContainer:not(.grid-view) .news-card{
+    display:flex;gap:14px;align-items:flex-start;
+  }
+  #newsContainer:not(.grid-view) .news-card .thumb{
+    width:96px;height:96px;aspect-ratio:auto;flex:0 0 auto;margin-bottom:0;
+  }
+  #newsContainer:not(.grid-view) .news-card .body{flex:1;min-width:0;}
   .news-card .tag{
     font-family:'Oswald',sans-serif;font-size:10.5px;font-weight:700;
     letter-spacing:.08em;text-transform:uppercase;color:var(--red);
@@ -238,10 +265,14 @@
     font-family:'Segoe UI',sans-serif;
     text-transform:none;letter-spacing:0;
     font-size:16px;font-weight:700;line-height:1.4;color:var(--charcoal);
+    display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden;
   }
+  #newsContainer.grid-view .news-card h3{font-size:14.5px;-webkit-line-clamp:2;}
   .share-btn{color:#25d366;font-size:13px;font-weight:700;margin-top:8px;}
+  #newsContainer.grid-view .share-btn{font-size:11.5px;}
   .empty-feed{
     text-align:center;color:var(--steel);font-size:13px;padding:30px 10px;
+    grid-column:1/-1;
   }
 
   footer{
@@ -314,9 +345,19 @@
   <!-- NEWS FEED -->
   <div class="feed-header">
     <h2 id="feedTitle">News</h2>
-    <span id="feedCount"></span>
+    <div class="right">
+      <span id="feedCount"></span>
+      <div class="view-toggle">
+        <button id="gridBtn" class="active" onclick="setView('grid')" aria-label="Grid view">
+          <svg viewBox="0 0 24 24" fill="none" stroke-width="2"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg>
+        </button>
+        <button id="listBtn" onclick="setView('list')" aria-label="List view">
+          <svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round"><line x1="4" y1="6" x2="20" y2="6"/><line x1="4" y1="12" x2="20" y2="12"/><line x1="4" y1="18" x2="20" y2="18"/></svg>
+        </button>
+      </div>
+    </div>
   </div>
-  <div id="newsContainer"></div>
+  <div id="newsContainer" class="grid-view"></div>
 
   <footer>
     <div style="display:flex;flex-wrap:wrap;justify-content:center;gap:14px;margin-bottom:14px;">
@@ -403,12 +444,32 @@
         return;
       }
       const catClass = currentCat === 'Stocks' ? 'stocks' : (currentCat === 'IPO' ? 'ipo' : '');
-      c.innerHTML = docs.map(d => `
-        <div class="news-card ${catClass}" onclick="window.location.href='details.html?id=${d.id}'">
-          <span class="tag">${CAT_LABELS[currentCat] || currentCat}</span>
-          <h3>${d.heading || ''}</h3>
-          <div class="share-btn">Read &amp; Share ➔</div>
-        </div>`).join('');
+      const placeholderImg = 'data:image/svg+xml;utf8,' + encodeURIComponent(
+        `<svg xmlns="http://www.w3.org/2000/svg" width="200" height="120"><rect width="200" height="120" fill="%23F6F4EC"/></svg>`
+      );
+      c.innerHTML = docs.map(d => {
+        const openTarget = d.externalLink
+          ? `window.open('${d.externalLink}','_blank')`
+          : (d.videoUrl ? `window.open('${d.videoUrl}','_blank')` : `window.location.href='details.html?id=${d.id}'`);
+        const img = d.image || d.imageUrl || '';
+        return `
+        <div class="news-card ${catClass}" onclick="${openTarget}">
+          <img class="thumb" src="${img || placeholderImg}" alt="" loading="lazy" onerror="this.src='${placeholderImg}'">
+          <div class="body">
+            <span class="tag">${CAT_LABELS[currentCat] || currentCat}${d.videoUrl ? ' · ▶ Video' : ''}${d.externalLink ? ' · ↗ Link' : ''}</span>
+            <h3>${d.heading || ''}</h3>
+            <div class="share-btn">Read &amp; Share ➔</div>
+          </div>
+        </div>`;
+      }).join('');
+    }
+
+    function setView(mode) {
+      const c = document.getElementById('newsContainer');
+      c.classList.toggle('grid-view', mode === 'grid');
+      document.getElementById('gridBtn').classList.toggle('active', mode === 'grid');
+      document.getElementById('listBtn').classList.toggle('active', mode === 'list');
+      localStorage.setItem('hn_view', mode);
     }
 
     function filterSearch() {
@@ -507,6 +568,8 @@
     }
 
     window.onload = () => {
+      const savedView = localStorage.getItem('hn_view') || 'grid';
+      setView(savedView);
       loadNews('News', document.querySelector('.cat-pill[data-cat="News"]'));
       loadStories();
       loadTicker();
@@ -515,3 +578,4 @@
   </script>
 </body>
 </html>
+
