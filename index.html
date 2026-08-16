@@ -1,10 +1,10 @@
 <!DOCTYPE html>
-<html lang="gu">
+<html lang="en">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>HEADLINE NEWS 24×7 | સમાચાર, શેરબજાર અને IPO</title>
-<meta name="description" content="ગુજરાતી સમાચાર, લાઈવ શેરબજાર ભાવ, IPO અપડેટ્સ અને વેબ સ્ટોરીઝ — એક જ જગ્યાએ.">
+<title>Headline News 24×7 | News, Stocks &amp; IPO</title>
+<meta name="description" content="Latest news, live stock market prices, IPO updates and web stories from Gujarat — all in one place.">
 
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -44,7 +44,6 @@
   }
   .mono{font-family:'JetBrains Mono',monospace;}
 
-  /* ---------- TICKER (signature element) ---------- */
   .ticker-wrap{
     background:var(--ink);
     border-bottom:3px solid var(--amber);
@@ -94,7 +93,6 @@
     100%{transform:translateX(-50%);}
   }
 
-  /* ---------- NAV ---------- */
   .navbar{
     background:var(--paper);
     position:sticky;
@@ -120,7 +118,7 @@
     flex:0 0 auto;
   }
   .brand-text{line-height:1.1;}
-  .brand-text .display{font-size:16px;color:var(--ink);}
+  .brand-text .display{font-size:16px;color:var(--ink);font-family:'Oswald',sans-serif;}
   .brand-text span{font-size:10px;color:var(--red);font-weight:700;letter-spacing:.12em;}
   .icon-btn{
     width:38px;height:38px;border-radius:50%;
@@ -158,11 +156,10 @@
   .search-panel input{
     width:100%;padding:12px 14px;border-radius:10px;
     border:1.5px solid var(--ink);font-size:14px;
-    font-family:'Noto Sans Gujarati',sans-serif;
+    font-family:'Segoe UI',sans-serif;
     background:var(--card);
   }
 
-  /* ---------- WEB STORIES ---------- */
   .stories-rail{
     max-width:720px;margin:0 auto;
     display:flex;gap:14px;overflow-x:auto;
@@ -189,7 +186,6 @@
   }
   .stories-empty{font-size:12px;color:var(--steel);padding:0 4px;}
 
-  /* ---------- MAIN PANEL (weather / market) ---------- */
   .main-panel{
     background:var(--card);
     padding:22px;border-radius:var(--radius);
@@ -200,7 +196,7 @@
   select{
     width:100%;padding:12px;font-weight:600;border-radius:10px;
     border:1.5px solid var(--line);margin:14px 0;
-    font-family:'Noto Sans Gujarati',sans-serif;
+    font-family:'Segoe UI',sans-serif;
   }
   .info-box{
     background:var(--paper);padding:16px;border-radius:10px;
@@ -213,7 +209,6 @@
   .market-item .mono{font-size:14px;}
   .up{color:var(--green);} .down{color:var(--red);}
 
-  /* ---------- NEWS FEED ---------- */
   .feed-header{
     max-width:720px;margin:0 auto;padding:4px 16px 4px;
     display:flex;align-items:baseline;justify-content:space-between;
@@ -240,7 +235,7 @@
     display:block;margin-bottom:6px;
   }
   .news-card h3{
-    font-family:'Noto Sans Gujarati',sans-serif;
+    font-family:'Segoe UI',sans-serif;
     text-transform:none;letter-spacing:0;
     font-size:16px;font-weight:700;line-height:1.4;color:var(--charcoal);
   }
@@ -260,7 +255,7 @@
   <div class="ticker-wrap">
     <div class="ticker-tag">● LIVE</div>
     <div class="ticker-track" id="tickerTrack">
-      <div class="ticker-item mono">લોડ થઈ રહ્યું છે...</div>
+      <div class="ticker-item mono">Loading...</div>
     </div>
   </div>
 
@@ -274,62 +269,65 @@
           <span>24×7 GUJARAT</span>
         </div>
       </div>
-      <div class="icon-btn" onclick="toggleSearch()" aria-label="Search">
-        <svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round"><circle cx="11" cy="11" r="7"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+      <div style="display:flex;gap:8px;">
+        <a href="index.html" class="icon-btn" style="text-decoration:none;font-family:'Oswald',sans-serif;font-size:11px;font-weight:700;color:var(--ink);" aria-label="ગુજરાતીમાં જુઓ">ગુજ</a>
+        <div class="icon-btn" onclick="toggleSearch()" aria-label="Search">
+          <svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round"><circle cx="11" cy="11" r="7"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+        </div>
       </div>
     </div>
 
     <div class="search-panel" id="searchPanel">
-      <input type="text" id="searchInput" placeholder="સમાચાર શોધો..." oninput="filterSearch()">
+      <input type="text" id="searchInput" placeholder="Search news..." oninput="filterSearch()">
     </div>
 
     <div class="category-row" id="categoryRow">
-      <button class="cat-pill active" data-cat="News" onclick="loadNews('News',this)">સમાચાર</button>
-      <button class="cat-pill" data-cat="Stocks" onclick="loadNews('Stocks',this)">શેરબજાર</button>
+      <button class="cat-pill active" data-cat="News" onclick="loadNews('News',this)">News</button>
+      <button class="cat-pill" data-cat="Stocks" onclick="loadNews('Stocks',this)">Stocks</button>
       <button class="cat-pill" data-cat="IPO" onclick="loadNews('IPO',this)">IPO</button>
-      <button class="cat-pill" onclick="showSection('weatherContainer',this)">હવામાન</button>
-      <button class="cat-pill" onclick="showSection('marketContainer',this)">બજાર ભાવ</button>
+      <button class="cat-pill" onclick="showSection('weatherContainer',this)">Weather</button>
+      <button class="cat-pill" onclick="showSection('marketContainer',this)">Market Rates</button>
     </div>
   </div>
 
   <!-- WEB STORIES -->
   <div class="stories-rail" id="storiesRail">
-    <div class="stories-empty">વેબ સ્ટોરીઝ લોડ થઈ રહી છે...</div>
+    <div class="stories-empty">Loading web stories...</div>
   </div>
 
   <!-- WEATHER / MARKET PANEL -->
   <div id="mainPanel" class="main-panel">
     <div id="weatherContainer" style="display:none;">
-      <h3 style="font-size:15px;color:var(--ink);">ગુજરાતના જિલ્લા અને ગામ પસંદ કરો</h3>
+      <h3 style="font-size:15px;color:var(--ink);">Select a district/town in Gujarat</h3>
       <select id="citySelect" onchange="fetchWeatherData()">
-        <option value="Ahmedabad">અમદાવાદ</option>
-        <option value="Surat">સુરત</option>
-        <option value="Rajkot">રાજકોટ</option>
-        <option value="Deesa">ડીસા</option>
+        <option value="Ahmedabad">Ahmedabad</option>
+        <option value="Surat">Surat</option>
+        <option value="Rajkot">Rajkot</option>
+        <option value="Deesa">Deesa</option>
       </select>
-      <div id="weatherResult" class="info-box">પસંદ કરો...</div>
+      <div id="weatherResult" class="info-box">Select a city...</div>
     </div>
 
     <div id="marketContainer" style="display:none;">
-      <h3 style="font-size:15px;color:var(--ink);">બજારના લાઈવ ભાવ</h3>
-      <div id="marketResult">લોડ થઈ રહ્યું છે...</div>
+      <h3 style="font-size:15px;color:var(--ink);">Live Market Rates</h3>
+      <div id="marketResult">Loading...</div>
     </div>
   </div>
 
   <!-- NEWS FEED -->
   <div class="feed-header">
-    <h2 id="feedTitle">સમાચાર</h2>
+    <h2 id="feedTitle">News</h2>
     <span id="feedCount"></span>
   </div>
   <div id="newsContainer"></div>
 
   <footer>
     <div style="display:flex;flex-wrap:wrap;justify-content:center;gap:14px;margin-bottom:14px;">
-      <a href="about-us.html" style="color:var(--ink);font-weight:700;text-decoration:none;font-size:12px;">About Us</a>
-      <a href="contact-us.html" style="color:var(--ink);font-weight:700;text-decoration:none;font-size:12px;">Contact Us</a>
-      <a href="privacy-policy.html" style="color:var(--ink);font-weight:700;text-decoration:none;font-size:12px;">Privacy Policy</a>
-      <a href="terms-and-conditions.html" style="color:var(--ink);font-weight:700;text-decoration:none;font-size:12px;">Terms &amp; Conditions</a>
-      <a href="disclaimer.html" style="color:var(--ink);font-weight:700;text-decoration:none;font-size:12px;">Disclaimer</a>
+      <a href="about-us-en.html" style="color:var(--ink);font-weight:700;text-decoration:none;font-size:12px;">About Us</a>
+      <a href="contact-us-en.html" style="color:var(--ink);font-weight:700;text-decoration:none;font-size:12px;">Contact Us</a>
+      <a href="privacy-policy-en.html" style="color:var(--ink);font-weight:700;text-decoration:none;font-size:12px;">Privacy Policy</a>
+      <a href="terms-and-conditions-en.html" style="color:var(--ink);font-weight:700;text-decoration:none;font-size:12px;">Terms &amp; Conditions</a>
+      <a href="disclaimer-en.html" style="color:var(--ink);font-weight:700;text-decoration:none;font-size:12px;">Disclaimer</a>
     </div>
     © <span id="year"></span> Headline News 24×7 — Deesa, Gujarat
   </footer>
@@ -344,12 +342,16 @@
     firebase.initializeApp(firebaseConfig);
     const db = firebase.firestore();
 
-    const CAT_LABELS = { News: 'સમાચાર', Stocks: 'શેરબજાર', IPO: 'IPO' };
+    const CAT_LABELS = { News: 'News', Stocks: 'Stocks', IPO: 'IPO' };
     let currentCat = 'News';
     let currentDocs = [];
+    let allDocs = [];
     let unsubscribeNews = null;
 
-    /* ---------- SECTION TOGGLE (weather / market) ---------- */
+    function docSection(d) {
+      return d.section === 'Stocks' || d.section === 'IPO' ? d.section : 'News';
+    }
+
     function showSection(id, btn) {
       setActivePill(btn);
       document.getElementById('mainPanel').style.display = 'block';
@@ -366,7 +368,6 @@
       if (btn) btn.classList.add('active');
     }
 
-    /* ---------- CATEGORY NEWS FEED ---------- */
     function loadNews(cat, btn) {
       currentCat = cat;
       setActivePill(btn);
@@ -376,25 +377,32 @@
       document.getElementById('feedTitle').textContent = CAT_LABELS[cat] || cat;
       document.getElementById('searchInput').value = '';
 
-      if (unsubscribeNews) unsubscribeNews();
+      applyCategoryFilter();
+
+      if (unsubscribeNews) return;
       unsubscribeNews = db.collection("allNews")
-        .where("section", "==", cat)
         .orderBy("timestamp", "desc")
+        .limit(300)
         .onSnapshot(s => {
-          currentDocs = [];
-          s.forEach(doc => currentDocs.push({ id: doc.id, ...doc.data() }));
-          renderNews(currentDocs);
+          allDocs = [];
+          s.forEach(doc => allDocs.push({ id: doc.id, ...doc.data() }));
+          applyCategoryFilter();
         }, err => {
           document.getElementById('newsContainer').innerHTML =
-            `<div class="empty-feed">ડેટા લોડ ન થયો. Firestore માં "section" field ('${cat}') ચકાસો.</div>`;
+            `<div class="empty-feed">Could not load data. Check Firestore rules.</div>`;
         });
+    }
+
+    function applyCategoryFilter() {
+      currentDocs = allDocs.filter(d => docSection(d) === currentCat);
+      renderNews(currentDocs);
     }
 
     function renderNews(docs) {
       const c = document.getElementById('newsContainer');
-      document.getElementById('feedCount').textContent = docs.length ? docs.length + ' સમાચાર' : '';
+      document.getElementById('feedCount').textContent = docs.length ? docs.length + ' articles' : '';
       if (!docs.length) {
-        c.innerHTML = `<div class="empty-feed">હાલમાં કોઈ સમાચાર નથી.</div>`;
+        c.innerHTML = `<div class="empty-feed">No news available right now.</div>`;
         return;
       }
       const catClass = currentCat === 'Stocks' ? 'stocks' : (currentCat === 'IPO' ? 'ipo' : '');
@@ -402,7 +410,7 @@
         <div class="news-card ${catClass}" onclick="window.location.href='details.html?id=${d.id}'">
           <span class="tag">${CAT_LABELS[currentCat] || currentCat}</span>
           <h3>${d.heading || ''}</h3>
-          <div class="share-btn">વાંચો અને શેર કરો ➔</div>
+          <div class="share-btn">Read &amp; Share ➔</div>
         </div>`).join('');
     }
 
@@ -417,12 +425,11 @@
       document.getElementById('searchInput').focus();
     }
 
-    /* ---------- WEB STORIES ---------- */
     function loadStories() {
       db.collection("allNews").where("webstory", "==", true)
         .orderBy("timestamp", "desc").limit(12).onSnapshot(s => {
           const rail = document.getElementById('storiesRail');
-          if (s.empty) { rail.innerHTML = `<div class="stories-empty">હજુ કોઈ વેબ સ્ટોરી નથી.</div>`; return; }
+          if (s.empty) { rail.innerHTML = `<div class="stories-empty">No web stories yet.</div>`; return; }
           rail.innerHTML = '';
           s.forEach(doc => {
             const d = doc.data();
@@ -434,11 +441,10 @@
           });
         }, () => {
           document.getElementById('storiesRail').innerHTML =
-            `<div class="stories-empty">Stories લોડ ન થઈ. "webstory" field ચકાસો.</div>`;
+            `<div class="stories-empty">Could not load stories.</div>`;
         });
     }
 
-    /* ---------- LIVE TICKER (breaking news + stock prices) ---------- */
     async function loadTicker() {
       let items = [];
       try {
@@ -458,26 +464,24 @@
           items.push(`<div class="ticker-item"><span class="mono">${label}</span> ${price} <span class="${cls}">(${chg}%)</span></div>`);
         }
       } catch (e) {}
-      if (!items.length) items = [`<div class="ticker-item">Headline News 24×7 માં આપનું સ્વાગત છે</div>`];
-      document.getElementById('tickerTrack').innerHTML = items.join('') + items.join(''); // duplicate for seamless loop
+      if (!items.length) items = [`<div class="ticker-item">Welcome to Headline News 24×7</div>`];
+      document.getElementById('tickerTrack').innerHTML = items.join('') + items.join('');
     }
 
-    /* ---------- WEATHER ---------- */
     async function fetchWeatherData() {
       const city = document.getElementById('citySelect').value;
       try {
-        const res = await fetch(`https://api.openweathermap.org/data/2.5/weather?q=${city}&units=metric&appid=c3d2062e4f2ab500d532b35b6b6d9059&lang=gu`);
+        const res = await fetch(`https://api.openweathermap.org/data/2.5/weather?q=${city}&units=metric&appid=c3d2062e4f2ab500d532b35b6b6d9059&lang=en`);
         const data = await res.json();
         document.getElementById('weatherResult').innerHTML = `
-          <div style="font-size:1.15em;font-weight:700;">${city} નું હવામાન</div>
-          <div style="margin-top:6px;">તાપમાન: ${data.main.temp}°C</div>
-          <div>સ્થિતિ: ${data.weather[0].description}</div>`;
+          <div style="font-size:1.15em;font-weight:700;">Weather in ${city}</div>
+          <div style="margin-top:6px;">Temperature: ${data.main.temp}°C</div>
+          <div>Condition: ${data.weather[0].description}</div>`;
       } catch (e) {
-        document.getElementById('weatherResult').innerHTML = 'હવામાન ડેટા લોડ ન થયો.';
+        document.getElementById('weatherResult').innerHTML = 'Could not load weather data.';
       }
     }
 
-    /* ---------- MARKET PANEL (bajar bhav) ---------- */
     async function fetchMarketData() {
       try {
         const res = await fetch(`https://api.twelvedata.com/quote?symbol=^BSESN,^NSEI,GOLD,SILVER,BTC/USD&apikey=89dc6593e9fb4ddf9071da2b5d9db4f0`);
@@ -491,11 +495,10 @@
         }
         document.getElementById('marketResult').innerHTML = html;
       } catch (e) {
-        document.getElementById('marketResult').innerHTML = "ડેટા લોડ ન થઈ શક્યો.";
+        document.getElementById('marketResult').innerHTML = "Could not load data.";
       }
     }
 
-    /* ---------- ADMIN ACCESS ---------- */
     let clickCount = 0;
     function logoClick() {
       clickCount++;
@@ -515,3 +518,4 @@
   </script>
 </body>
 </html>
+
