@@ -68,34 +68,15 @@
   }
   .share-btn.whatsapp{border-color:#25d366;color:#128c47;}
 
-  /* MORE NEWS SECTION STYLES */
-  .more-news-section{
-    margin-top:40px;padding:30px 18px;border-top:2px solid var(--line);
-  }
-  .more-news-title{
-    font-family:'Oswald',sans-serif;font-size:16px;font-weight:700;text-transform:uppercase;
-    letter-spacing:.04em;color:var(--ink);margin-bottom:18px;
-  }
-  .more-news-grid{
-    display:grid;grid-template-columns:1fr;gap:14px;
-  }
-  .more-news-card{
-    display:flex;gap:12px;text-decoration:none;color:inherit;border-radius:10px;
-    border:1px solid var(--line);background:var(--card);overflow:hidden;
-    transition:all .2s;cursor:pointer;
-  }
-  .more-news-card:active{transform:scale(.98);}
-  .more-news-card img{width:90px;height:90px;object-fit:cover;flex:0 0 auto;background:var(--line);}
-  .more-news-card-text{padding:10px;flex:1;display:flex;flex-direction:column;}
-  .more-news-card-title{font-size:13px;font-weight:700;line-height:1.4;color:var(--charcoal);}
-  .more-news-card-meta{font-size:10px;color:var(--steel);margin-top:auto;padding-top:6px;}
-
   .loading, .error{text-align:center;padding:60px 20px;color:var(--steel);font-size:14px;}
-  .more-news-loading{text-align:center;padding:20px;color:var(--steel);font-size:13px;}
 
-  /* FOOTER SECTION */
+  /* FOOTER STYLES */
   .footer-section{
     margin-top:40px;padding:30px 18px;border-top:2px solid var(--line);background:var(--card);
+  }
+  .footer-title{
+    font-family:'Oswald',sans-serif;font-size:14px;font-weight:700;text-transform:uppercase;
+    letter-spacing:.04em;color:var(--ink);margin-bottom:16px;
   }
   .footer-links{
     display:flex;flex-direction:column;gap:10px;
@@ -107,9 +88,10 @@
     transition:all .2s;text-align:center;justify-content:center;
   }
   .footer-link:active{transform:scale(.98);background:var(--paper);}
-  .footer-link.contact{border-color:#25d366;color:#128c47;}
+  .footer-link.whatsapp{border-color:#25d366;color:#128c47;}
+  .footer-link.contact{border-color:var(--ink);color:var(--ink);}
   .footer-link.privacy{border-color:var(--amber);color:var(--amber-deep);}
-  .footer-link.terms{border-color:var(--ink);color:var(--ink);}
+  .footer-link.terms{border-color:var(--red);color:var(--red);}
   .footer-copyright{
     text-align:center;color:var(--steel);font-size:11px;margin-top:20px;padding-top:20px;
     border-top:1px solid var(--line);
@@ -168,11 +150,14 @@
       const isTweetStatus = isTwitter && /\/status\/\d+/.test(url);
 
       if (isTweetStatus) {
-        // Official Twitter/X tweet embed — placed directly in article flow, not in card
+        // Official Twitter/X tweet embed — small card, loads via widgets.js
         return `
-          <blockquote class="twitter-tweet" data-conversation="none" data-theme="light" data-dnt="true" style="margin:20px 0;">
-            <a href="${url}"></a>
-          </blockquote>`;
+          <div class="embed-card">
+            <div class="embed-label">From X / Twitter</div>
+            <blockquote class="twitter-tweet" data-conversation="none" data-theme="light" data-dnt="true">
+              <a href="${url}"></a>
+            </blockquote>
+          </div>`;
       }
       if (isTwitter) {
         // Profile link (not a specific tweet) — compact timeline embed
@@ -182,7 +167,7 @@
             <a class="twitter-timeline" data-height="260" data-theme="light" href="${url}">Tweets</a>
           </div>`;
       }
-      // Any other external site — small clickable card
+      // Any other external site — small clickable card, opens in a new tab only if user taps it
       return `
         <div class="embed-card">
           <div class="embed-label">Related Link</div>
@@ -200,51 +185,6 @@
         return `<div class="video-embed"><iframe src="https://www.youtube.com/embed/${yt[1]}" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe></div>`;
       }
       return `<div class="video-embed"><video src="${url}" controls></video></div>`;
-    }
-
-    async function loadMoreNews(currentArticleId) {
-      try {
-        const moreNewsContainer = document.getElementById('moreNewsContainer');
-        
-        // Fetch 6 more articles from same section
-        const snap = await db.collection('allNews')
-          .orderBy('timestamp', 'desc')
-          .limit(8)
-          .get();
-        
-        let moreArticles = [];
-        snap.forEach(doc => {
-          if (doc.id !== currentArticleId) {
-            moreArticles.push({ id: doc.id, ...doc.data() });
-          }
-        });
-        
-        moreArticles = moreArticles.slice(0, 6);
-
-        if (!moreArticles.length) {
-          moreNewsContainer.innerHTML = '<div class="more-news-loading">No more articles available.</div>';
-          return;
-        }
-
-        let html = '<div class="more-news-grid">';
-        moreArticles.forEach(article => {
-          const img = article.image || article.imageUrl || 'data:image/svg+xml;utf8,%3Csvg xmlns="http://www.w3.org/2000/svg" width="90" height="90"%3E%3Crect fill="%23E4E0D4"/%3E%3C/svg%3E';
-          html += `
-            <a class="more-news-card" href="details.html?id=${article.id}">
-              <img src="${img}" alt="" onerror="this.src='data:image/svg+xml;utf8,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 width=%2290%22 height=%2290%22%3E%3Crect fill=%22%23E4E0D4%22/%3E%3C/svg%3E'" loading="lazy">
-              <div class="more-news-card-text">
-                <div class="more-news-card-title">${escapeHtml(article.heading || '')}</div>
-                <div class="more-news-card-meta">${article.section || 'News'}</div>
-              </div>
-            </a>`;
-        });
-        html += '</div>';
-        
-        moreNewsContainer.innerHTML = html;
-      } catch (e) {
-        console.error('Error loading more news:', e);
-        document.getElementById('moreNewsContainer').innerHTML = '<div class="more-news-loading">Could not load more articles.</div>';
-      }
     }
 
     async function loadArticle() {
@@ -279,29 +219,26 @@
             <div class="article-text">${bodyHtml || '<p>Full details coming soon.</p>'}</div>
             <div class="share-row">
               <a class="share-btn whatsapp" href="https://wa.me/?text=${encodeURIComponent((d.heading || '') + ' ' + window.location.href)}" target="_blank" rel="noopener">Share on WhatsApp</a>
-              <a class="share-btn" href="index.html">← Back to Home</a>
+              <a class="share-btn" href="index.html">More News</a>
             </div>
           </div>
-          <div class="more-news-section">
-            <div class="more-news-title">📰 More News</div>
-            <div id="moreNewsContainer" class="more-news-loading">Loading...</div>
-          </div>
           <div class="footer-section">
+            <div class="footer-title">📞 Get In Touch</div>
             <div class="footer-links">
-              <a class="footer-link contact" href="https://wa.me/919725747516?text=Hello%20from%20Headline%20News%2024x7" target="_blank" rel="noopener">
+              <a class="footer-link whatsapp" href="https://wa.me/919725747516?text=Hello%20from%20Headline%20News%2024x7" target="_blank" rel="noopener">
                 💬 WhatsApp: +91 97257 47516
               </a>
-              <a class="footer-link contact" href="https://wa.me/918160708607?text=Hello%20from%20Headline%20News%2024x7" target="_blank" rel="noopener">
+              <a class="footer-link whatsapp" href="https://wa.me/918160708607?text=Hello%20from%20Headline%20News%2024x7" target="_blank" rel="noopener">
                 💬 WhatsApp: +91 81607 08607
               </a>
-              <a class="footer-link" href="contact-us.html" style="border-color:var(--ink);color:var(--ink);">
+              <a class="footer-link contact" href="contact-us.html">
                 📧 Contact Us
               </a>
               <a class="footer-link privacy" href="privacy-policy.html">
                 🔒 Privacy Policy
               </a>
               <a class="footer-link terms" href="terms-and-conditions.html">
-                ⚖️ Terms & Conditions
+                ⚖️ Terms &amp; Conditions
               </a>
             </div>
             <div class="footer-copyright">
@@ -317,15 +254,11 @@
           document.body.appendChild(s);
         }
 
-        // Load more news
-        loadMoreNews(id);
+        document.getElementById('footerYear').textContent = new Date().getFullYear();
       } catch (e) {
         main.innerHTML = `<div class="error">Could not load this article. Please try again.</div>`;
       }
     }
-
-    // Set footer year
-    document.getElementById('footerYear').textContent = new Date().getFullYear();
 
     loadArticle();
   </script>
