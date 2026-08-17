@@ -92,6 +92,28 @@
 
   .loading, .error{text-align:center;padding:60px 20px;color:var(--steel);font-size:14px;}
   .more-news-loading{text-align:center;padding:20px;color:var(--steel);font-size:13px;}
+
+  /* FOOTER SECTION */
+  .footer-section{
+    margin-top:40px;padding:30px 18px;border-top:2px solid var(--line);background:var(--card);
+  }
+  .footer-links{
+    display:flex;flex-direction:column;gap:10px;
+  }
+  .footer-link{
+    display:inline-flex;align-items:center;gap:8px;padding:12px 14px;
+    border-radius:8px;border:1.5px solid var(--line);
+    text-decoration:none;color:var(--charcoal);font-weight:600;font-size:13px;
+    transition:all .2s;text-align:center;justify-content:center;
+  }
+  .footer-link:active{transform:scale(.98);background:var(--paper);}
+  .footer-link.contact{border-color:#25d366;color:#128c47;}
+  .footer-link.privacy{border-color:var(--amber);color:var(--amber-deep);}
+  .footer-link.terms{border-color:var(--ink);color:var(--ink);}
+  .footer-copyright{
+    text-align:center;color:var(--steel);font-size:11px;margin-top:20px;padding-top:20px;
+    border-top:1px solid var(--line);
+  }
 </style>
 </head>
 <body>
@@ -263,6 +285,28 @@
           <div class="more-news-section">
             <div class="more-news-title">📰 More News</div>
             <div id="moreNewsContainer" class="more-news-loading">Loading...</div>
+          </div>
+          <div class="footer-section">
+            <div class="footer-links">
+              <a class="footer-link contact" href="https://wa.me/919725747516?text=Hello%20from%20Headline%20News%2024x7" target="_blank" rel="noopener">
+                💬 WhatsApp: +91 97257 47516
+              </a>
+              <a class="footer-link contact" href="https://wa.me/918160708607?text=Hello%20from%20Headline%20News%2024x7" target="_blank" rel="noopener">
+                💬 WhatsApp: +91 81607 08607
+              </a>
+              <a class="footer-link" href="contact-us.html" style="border-color:var(--ink);color:var(--ink);">
+                📧 Contact Us
+              </a>
+              <a class="footer-link privacy" href="privacy-policy.html">
+                🔒 Privacy Policy
+              </a>
+              <a class="footer-link terms" href="terms-and-conditions.html">
+                ⚖️ Terms & Conditions
+              </a>
+            </div>
+            <div class="footer-copyright">
+              © <span id="footerYear"></span> Headline News 24×7 — Deesa, Gujarat
+            </div>
           </div>`;
 
         // Load Twitter widgets.js only if we actually embedded a tweet/timeline
@@ -280,7 +324,11 @@
       }
     }
 
+    // Set footer year
+    document.getElementById('footerYear').textContent = new Date().getFullYear();
+
     loadArticle();
   </script>
 </body>
 </html>
+
