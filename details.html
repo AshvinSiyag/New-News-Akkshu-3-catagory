@@ -96,6 +96,30 @@
     text-align:center;color:var(--steel);font-size:11px;margin-top:20px;padding-top:20px;
     border-top:1px solid var(--line);
   }
+
+  /* TRENDING NEWS SECTION */
+  .trending-section{
+    margin-top:40px;padding:30px 18px;border-top:2px solid var(--line);
+  }
+  .trending-title{
+    font-family:'Oswald',sans-serif;font-size:16px;font-weight:700;text-transform:uppercase;
+    letter-spacing:.04em;color:var(--ink);margin-bottom:18px;
+  }
+  .trending-grid{
+    display:grid;grid-template-columns:1fr 1fr;gap:12px;
+  }
+  .trending-card{
+    display:flex;flex-direction:column;gap:8px;text-decoration:none;color:inherit;
+    border-radius:10px;border:1px solid var(--line);background:var(--card);overflow:hidden;
+    transition:all .2s;cursor:pointer;
+  }
+  .trending-card:active{transform:scale(.98);}
+  .trending-card img{width:100%;aspect-ratio:16/9;object-fit:cover;background:var(--line);}
+  .trending-card-text{padding:8px;flex:1;display:flex;flex-direction:column;}
+  .trending-card-title{font-size:12px;font-weight:700;line-height:1.3;color:var(--charcoal);}
+  .trending-card-meta{font-size:9px;color:var(--steel);margin-top:auto;padding-top:4px;}
+
+  .trending-loading{text-align:center;padding:20px;color:var(--steel);font-size:13px;}
 </style>
 </head>
 <body>
@@ -187,6 +211,47 @@
       return `<div class="video-embed"><video src="${url}" controls></video></div>`;
     }
 
+    async function loadTrendingNews() {
+      try {
+        const trendingContainer = document.getElementById('trendingContainer');
+        
+        // Fetch 10 trending articles (most recent)
+        const snap = await db.collection('allNews')
+          .orderBy('timestamp', 'desc')
+          .limit(10)
+          .get();
+        
+        let trendingArticles = [];
+        snap.forEach(doc => {
+          trendingArticles.push({ id: doc.id, ...doc.data() });
+        });
+
+        if (!trendingArticles.length) {
+          trendingContainer.innerHTML = '<div class="trending-loading">No trending articles available.</div>';
+          return;
+        }
+
+        let html = '<div class="trending-grid">';
+        trendingArticles.forEach(article => {
+          const img = article.image || article.imageUrl || 'data:image/svg+xml;utf8,%3Csvg xmlns="http://www.w3.org/2000/svg" width="160" height="90"%3E%3Crect fill="%23E4E0D4"/%3E%3C/svg%3E';
+          html += `
+            <a class="trending-card" href="details.html?id=${article.id}">
+              <img src="${img}" alt="" onerror="this.src='data:image/svg+xml;utf8,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 width=%22160%22 height=%2290%22%3E%3Crect fill=%22%23E4E0D4%22/%3E%3C/svg%3E'" loading="lazy">
+              <div class="trending-card-text">
+                <div class="trending-card-title">${escapeHtml(article.heading || '')}</div>
+                <div class="trending-card-meta">${article.section || 'News'}</div>
+              </div>
+            </a>`;
+        });
+        html += '</div>';
+        
+        trendingContainer.innerHTML = html;
+      } catch (e) {
+        console.error('Error loading trending news:', e);
+        document.getElementById('trendingContainer').innerHTML = '<div class="trending-loading">Could not load trending articles.</div>';
+      }
+    }
+
     async function loadArticle() {
       const id = getParam('id');
       const main = document.getElementById('mainContent');
@@ -222,6 +287,10 @@
               <a class="share-btn" href="index.html">More News</a>
             </div>
           </div>
+          <div class="trending-section">
+            <div class="trending-title">🔥 Trending Now</div>
+            <div id="trendingContainer" class="trending-loading">Loading...</div>
+          </div>
           <div class="footer-section">
             <div class="footer-title">📞 Get In Touch</div>
             <div class="footer-links">
@@ -255,6 +324,9 @@
         }
 
         document.getElementById('footerYear').textContent = new Date().getFullYear();
+
+        // Load trending news after article loads
+        loadTrendingNews();
       } catch (e) {
         main.innerHTML = `<div class="error">Could not load this article. Please try again.</div>`;
       }
@@ -264,4 +336,3 @@
   </script>
 </body>
 </html>
-
