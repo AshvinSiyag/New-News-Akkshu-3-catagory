@@ -8,6 +8,7 @@
 <link href="https://fonts.googleapis.com/css2?family=Oswald:wght@500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
 <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
 <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-firestore.js"></script>
+<script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-auth.js"></script>
 <style>
   :root{
     --ink:#0B1F3A; --ink-2:#122B52; --paper:#F6F4EC; --card:#FFFFFF;
@@ -80,6 +81,17 @@
   .tab-btn.active{color:var(--ink);border-bottom-color:var(--ink);}
 </style>
 
+<style id="admin-auth-style">
+#authGate{position:fixed;inset:0;z-index:9999;display:flex;align-items:center;justify-content:center;padding:20px;background:radial-gradient(circle at 50% 0,#163d7a,#03050d 70%);}
+.auth-box{width:min(420px,100%);padding:28px;border:1px solid #294571;border-radius:20px;background:linear-gradient(145deg,#101d3c,#070d20);box-shadow:0 30px 90px #000b;}
+.auth-box h1{margin:0 0 8px;color:#fff;font:700 25px Oswald,sans-serif;text-transform:uppercase;}
+.auth-box p{color:#9db0d0;font-size:12px;line-height:1.6;}
+.auth-box input{width:100%;padding:12px;margin:7px 0;border-radius:10px;border:1px solid #294571;background:#071329;color:#fff;}
+.auth-box button{width:100%;padding:13px;margin-top:8px;background:linear-gradient(135deg,#ff263e,#b80019);color:#fff;border:0;border-radius:10px;font-weight:800;}
+#authError{color:#ff6a78;font-size:12px;min-height:18px;margin-top:8px;}
+#adminApp{display:none;}
+#logoutBtn{margin-left:auto;background:#ff263e;color:#fff;padding:8px 12px;border:0;border-radius:8px;font-size:11px;}
+</style>
 <style id="premium-overrides">
 :root{--pbg:#040817;--p1:#09132a;--p2:#0e1c3c;--pred:#ff1734;--pblue:#1687ff;--pcyan:#00d9ff;--ptxt:#f7fbff;--pmuted:#93a7cb;--pline:#243c68}
 html,body{background:radial-gradient(circle at 50% -20%,#163d7a 0,#071125 38%,#03050d 85%) !important;color:var(--ptxt)!important}
@@ -101,13 +113,24 @@ input,textarea,select{background:#071329!important;color:#fff!important;border-c
 </style>
 </head>
 <body>
-
+<div id="authGate">
+  <div class="auth-box">
+    <h1>🔐 Admin Access</h1>
+    <p>Only the authorized Firebase account can publish, edit or delete news.</p>
+    <input id="adminEmail" type="email" placeholder="Admin email">
+    <input id="adminPassword" type="password" placeholder="Password">
+    <button onclick="adminLogin()">SIGN IN</button>
+    <div id="authError"></div>
+  </div>
+</div>
+<div id="adminApp">
 <header>
   <img src="1000678471.png" alt="Headline News 24×7 logo">
   <div>
     <div class="t">Headline News 24×7</div>
     <div class="sub">ADMIN PANEL</div>
   </div>
+<button id="logoutBtn" onclick="adminLogout()">LOGOUT</button>
 </header>
 
 <div class="container">
@@ -192,6 +215,7 @@ input,textarea,select{background:#071329!important;color:#fff!important;border-c
     <div id="adminNewsList"></div>
   </div>
 </div>
+</div>
 
 <script>
   const firebaseConfig = {
@@ -204,6 +228,23 @@ input,textarea,select{background:#071329!important;color:#fff!important;border-c
   };
   firebase.initializeApp(firebaseConfig);
   const db = firebase.firestore();
+  const auth = firebase.auth();
+
+  function adminLogin(){
+    const email=document.getElementById('adminEmail').value.trim();
+    const password=document.getElementById('adminPassword').value;
+    const err=document.getElementById('authError');
+    err.textContent='';
+    if(!email || !password){err.textContent='Email and password are required.';return;}
+    auth.signInWithEmailAndPassword(email,password).catch(e=>{err.textContent='Login failed. Check your Firebase admin account.';console.error(e);});
+  }
+  function adminLogout(){auth.signOut();}
+  auth.onAuthStateChanged(user=>{
+    const gate=document.getElementById('authGate');
+    const app=document.getElementById('adminApp');
+    if(user){gate.style.display='none';app.style.display='block';startAdmin();}
+    else{gate.style.display='flex';app.style.display='none';}
+  });
 
   let currentTab = 'all';
   let allArticles = [];
@@ -315,14 +356,23 @@ input,textarea,select{background:#071329!important;color:#fff!important;border-c
     document.getElementById('totalViews').textContent = totalViews.toLocaleString();
   }
 
-  db.collection("allNews").onSnapshot(snapshot => {
-    allArticles = [];
-    snapshot.forEach(doc => {
-      allArticles.push({ id: doc.id, viewCount: doc.data().viewCount || 0, data: doc.data(), timestamp: doc.data().timestamp?.seconds || 0 });
+  let adminStarted=false;
+  function startAdmin(){
+    if(adminStarted) return;
+    adminStarted=true;
+    db.collection("allNews").onSnapshot(snapshot => {
+      allArticles = [];
+      snapshot.forEach(doc => {
+        allArticles.push({ id: doc.id, viewCount: doc.data().viewCount || 0, data: doc.data(), timestamp: doc.data().timestamp?.seconds || 0 });
+      });
+      updateAnalytics();
+      renderNewsList();
+    }, err => {
+      console.error(err);
+      alert('Admin data access denied. Check Firebase Firestore rules.');
     });
-    updateAnalytics();
-    renderNewsList();
-  });
+  }
 </script>
 </body>
 </html>
+
