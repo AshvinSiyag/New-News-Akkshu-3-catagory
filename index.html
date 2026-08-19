@@ -1,577 +1,88 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Headline News 24×7 | News, Stocks &amp; IPO</title>
-<meta name="description" content="Latest news, live stock market prices, IPO updates and web stories from Gujarat — all in one place.">
-
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Headline News 24×7 | Latest News, Stocks & IPO</title>
+<meta name="description" content="Headline News 24×7 — latest Gujarat news, stocks, IPO, weather and breaking updates.">
 <link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Oswald:wght@400;500;600;700&family=Noto+Sans+Gujarati:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
-
+<link href="https://fonts.googleapis.com/css2?family=Oswald:wght@500;600;700&family=Noto+Sans+Gujarati:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-4298712782505661" crossorigin="anonymous"></script>
-
+<script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
+<script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-firestore.js"></script>
 <style>
-  :root{
-    --ink:#0B1F3A;
-    --ink-2:#122B52;
-    --paper:#F6F4EC;
-    --card:#FFFFFF;
-    --amber:#E8A33D;
-    --amber-deep:#C97F17;
-    --red:#C0392B;
-    --green:#1B7A4D;
-    --charcoal:#1B1D22;
-    --steel:#69707D;
-    --line:#E4E0D4;
-    --radius:14px;
-  }
-  *{box-sizing:border-box;}
-  html{scroll-behavior:smooth;}
-  body{
-    margin:0;
-    background:var(--paper);
-    color:var(--charcoal);
-    font-family:'Noto Sans Gujarati','Segoe UI',sans-serif;
-    -webkit-font-smoothing:antialiased;
-  }
-  h1,h2,h3,.display{
-    font-family:'Oswald',sans-serif;
-    text-transform:uppercase;
-    letter-spacing:.02em;
-    margin:0;
-  }
-  .mono{font-family:'JetBrains Mono',monospace;}
-
-  .ticker-wrap{
-    background:var(--ink);
-    border-bottom:3px solid var(--amber);
-    overflow:hidden;
-    position:sticky;
-    top:0;
-    z-index:1100;
-    height:38px;
-    display:flex;
-    align-items:center;
-  }
-  .ticker-tag{
-    flex:0 0 auto;
-    background:var(--red);
-    color:#fff;
-    font-family:'Oswald',sans-serif;
-    font-weight:700;
-    font-size:12px;
-    letter-spacing:.08em;
-    padding:6px 14px;
-    height:100%;
-    display:flex;
-    align-items:center;
-    position:relative;
-    z-index:2;
-  }
-  .ticker-track{
-    display:flex;
-    white-space:nowrap;
-    animation:scroll-left 45s linear infinite;
-  }
-  .ticker-wrap:hover .ticker-track{animation-play-state:paused;}
-  .ticker-item{
-    color:#F1E9D8;
-    font-size:13px;
-    padding:0 28px;
-    display:inline-flex;
-    align-items:center;
-    gap:8px;
-    border-right:1px solid rgba(255,255,255,.15);
-  }
-  .ticker-item .mono{color:var(--amber);font-weight:700;}
-  .ticker-item .up{color:#6FCF97;}
-  .ticker-item .down{color:#EB8383;}
-  @keyframes scroll-left{
-    0%{transform:translateX(0);}
-    100%{transform:translateX(-50%);}
-  }
-
-  .navbar{
-    background:var(--paper);
-    position:sticky;
-    top:38px;
-    z-index:1000;
-    border-bottom:1px solid var(--line);
-  }
-  .nav-inner{
-    max-width:720px;
-    margin:0 auto;
-    padding:14px 16px 10px;
-    display:flex;
-    align-items:center;
-    justify-content:space-between;
-    gap:12px;
-  }
-  .brand{display:flex;align-items:center;gap:10px;cursor:pointer;}
-  .brand-mark{
-    width:38px;height:38px;border-radius:8px;
-    background:linear-gradient(135deg,var(--ink),var(--ink-2));
-    display:flex;align-items:center;justify-content:center;
-    color:var(--amber);font-family:'Oswald',sans-serif;font-weight:700;font-size:15px;
-    flex:0 0 auto;
-  }
-  .brand-text{line-height:1.1;}
-  .brand-text .display{font-size:16px;color:var(--ink);font-family:'Oswald',sans-serif;}
-  .brand-text span{font-size:10px;color:var(--red);font-weight:700;letter-spacing:.12em;}
-  .icon-btn{
-    width:38px;height:38px;border-radius:50%;
-    border:1px solid var(--line);background:var(--card);
-    display:flex;align-items:center;justify-content:center;
-    cursor:pointer;flex:0 0 auto;
-  }
-  .icon-btn svg{width:17px;height:17px;stroke:var(--ink);}
-
-  .category-row{
-    max-width:720px;margin:0 auto;
-    display:flex;gap:8px;overflow-x:auto;
-    padding:0 16px 12px;
-    scrollbar-width:none;
-  }
-  .category-row::-webkit-scrollbar{display:none;}
-  .cat-pill{
-    flex:0 0 auto;
-    font-family:'Oswald',sans-serif;
-    font-size:12.5px;font-weight:600;letter-spacing:.04em;
-    text-transform:uppercase;
-    padding:8px 16px;
-    border-radius:999px;
-    border:1.5px solid var(--ink);
-    background:transparent;color:var(--ink);
-    cursor:pointer;
-    transition:.15s;
-  }
-  .cat-pill.active{background:var(--ink);color:var(--amber);}
-
-  .search-panel{
-    max-width:720px;margin:0 auto;padding:0 16px 12px;display:none;
-  }
-  .search-panel.open{display:block;}
-  .search-panel input{
-    width:100%;padding:12px 14px;border-radius:10px;
-    border:1.5px solid var(--ink);font-size:14px;
-    font-family:'Segoe UI',sans-serif;
-    background:var(--card);
-  }
-
-  .stories-rail{
-    max-width:720px;margin:0 auto;
-    display:flex;gap:14px;overflow-x:auto;
-    padding:14px 16px 18px;
-    scrollbar-width:none;
-  }
-  .stories-rail::-webkit-scrollbar{display:none;}
-  .story{
-    flex:0 0 auto;width:74px;text-align:center;cursor:pointer;
-  }
-  .story-ring{
-    width:66px;height:66px;border-radius:50%;
-    background:conic-gradient(from 45deg,var(--amber),var(--red),var(--amber));
-    padding:3px;
-    margin:0 auto 6px;
-  }
-  .story-ring img{
-    width:100%;height:100%;border-radius:50%;object-fit:cover;
-    border:2.5px solid var(--paper);display:block;background:#ddd;
-  }
-  .story-label{
-    font-size:11px;color:var(--charcoal);font-weight:600;
-    white-space:nowrap;overflow:hidden;text-overflow:ellipsis;
-  }
-  .stories-empty{font-size:12px;color:var(--steel);padding:0 4px;}
-
-  .main-panel{
-    background:var(--card);
-    padding:22px;border-radius:var(--radius);
-    max-width:560px;margin:16px auto;
-    border:1px solid var(--line);
-    display:none;
-  }
-  select{
-    width:100%;padding:12px;font-weight:600;border-radius:10px;
-    border:1.5px solid var(--line);margin:14px 0;
-    font-family:'Segoe UI',sans-serif;
-  }
-  .info-box{
-    background:var(--paper);padding:16px;border-radius:10px;
-    border:1px solid var(--line);font-weight:600;font-size:1em;color:var(--charcoal);
-  }
-  .market-item{
-    display:flex;justify-content:space-between;align-items:center;
-    padding:13px 4px;font-weight:700;border-bottom:1px solid var(--line);
-  }
-  .market-item .mono{font-size:14px;}
-  .up{color:var(--green);} .down{color:var(--red);}
-
-  .feed-header{
-    max-width:720px;margin:0 auto;padding:4px 16px 4px;
-    display:flex;align-items:center;justify-content:space-between;
-  }
-  .feed-header h2{font-size:15px;color:var(--ink);}
-  .feed-header .right{display:flex;align-items:center;gap:10px;}
-  .feed-header span{font-size:11px;color:var(--steel);font-family:'JetBrains Mono',monospace;}
-  .view-toggle{
-    display:flex;border:1.5px solid var(--ink);border-radius:8px;overflow:hidden;flex:0 0 auto;
-  }
-  .view-toggle button{
-    background:transparent;border:none;padding:6px 9px;cursor:pointer;
-    display:flex;align-items:center;justify-content:center;
-  }
-  .view-toggle button svg{width:14px;height:14px;stroke:var(--ink);}
-  .view-toggle button.active{background:var(--ink);}
-  .view-toggle button.active svg{stroke:var(--amber);}
-
-  #newsContainer{max-width:720px;margin:0 auto;padding:8px 16px 40px;}
-  #newsContainer.grid-view{
-    display:grid;grid-template-columns:1fr 1fr;gap:12px;
-  }
-  #newsContainer.grid-view .news-card{margin-bottom:0;}
-  .news-card{
-    background:var(--card);
-    border:1px solid var(--line);
-    border-left:4px solid var(--ink);
-    border-radius:10px;
-    padding:16px;margin-bottom:12px;
-    cursor:pointer;text-align:left;
-    transition:.15s;
-    overflow:hidden;
-  }
-  .news-card:active{transform:scale(.99);}
-  .news-card.stocks{border-left-color:var(--green);}
-  .news-card.ipo{border-left-color:var(--amber-deep);}
-  .news-card .thumb{
-    width:100%;aspect-ratio:16/10;object-fit:cover;
-    border-radius:7px;background:var(--paper);display:block;margin-bottom:10px;
-  }
-  #newsContainer:not(.grid-view) .news-card{
-    display:flex;gap:14px;align-items:flex-start;
-  }
-  #newsContainer:not(.grid-view) .news-card .thumb{
-    width:96px;height:96px;aspect-ratio:auto;flex:0 0 auto;margin-bottom:0;
-  }
-  #newsContainer:not(.grid-view) .news-card .body{flex:1;min-width:0;}
-  .news-card .tag{
-    font-family:'Oswald',sans-serif;font-size:10.5px;font-weight:700;
-    letter-spacing:.08em;text-transform:uppercase;color:var(--red);
-    display:block;margin-bottom:6px;
-  }
-  .news-card h3{
-    font-family:'Segoe UI',sans-serif;
-    text-transform:none;letter-spacing:0;
-    font-size:16px;font-weight:700;line-height:1.4;color:var(--charcoal);
-    display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden;
-  }
-  #newsContainer.grid-view .news-card h3{font-size:14.5px;-webkit-line-clamp:2;}
-  .share-btn{color:#25d366;font-size:13px;font-weight:700;margin-top:8px;}
-  #newsContainer.grid-view .share-btn{font-size:11.5px;}
-  .empty-feed{
-    text-align:center;color:var(--steel);font-size:13px;padding:30px 10px;
-    grid-column:1/-1;
-  }
-
-  footer{
-    text-align:center;padding:24px 16px 40px;color:var(--steel);font-size:11px;
-  }
+:root{--bg:#040817;--p1:#09132a;--p2:#101d3b;--red:#ff1835;--blue:#1687ff;--cyan:#00d9ff;--txt:#f7fbff;--muted:#93a7cb;--line:#243c68}
+*{box-sizing:border-box}html{scroll-behavior:smooth}body{margin:0;color:var(--txt);font-family:'Noto Sans Gujarati','Segoe UI',Arial,sans-serif;background:radial-gradient(circle at 50% -15%,#173e7c 0,#071125 35%,#03050d 82%);overflow-x:hidden}
+body:before{content:"";position:fixed;inset:0;pointer-events:none;background:linear-gradient(115deg,transparent 0 46%,#fff1 50%,transparent 54%);opacity:.45}
+a{text-decoration:none;color:inherit}.wrap{max-width:1400px;margin:auto;padding:0 20px}
+.top{background:#02040a;color:#90a4c7;border-bottom:1px solid #162847;font:11px Oswald,sans-serif}.topin{height:32px;display:flex;justify-content:space-between;align-items:center}
+header{position:sticky;top:0;z-index:50;background:#040a18e8;backdrop-filter:blur(18px);border-bottom:1px solid #1c355d;box-shadow:0 14px 40px #0009}.head{height:86px;display:flex;align-items:center;gap:17px}
+.logo{display:flex;align-items:center;gap:10px;min-width:max-content;font:800 26px Oswald,sans-serif;letter-spacing:-.5px}.logo img{width:54px;height:54px;object-fit:contain;border-radius:50%;filter:drop-shadow(0 0 14px #1687ff66)}.logo b{color:#ff3148}.tagline{font:10px Oswald,sans-serif;color:#a9b9d5;border-left:1px solid #2b4269;padding-left:15px}
+nav{display:flex;gap:3px;margin-left:auto}nav a{font:700 12px Oswald,sans-serif;color:#aebddd;padding:11px 12px;border-radius:9px;transition:.25s}nav a:hover,nav a.active{color:#fff;background:linear-gradient(135deg,#ff253d,#b90018);box-shadow:0 8px 25px #ff183544;transform:translateY(-2px)}
+.actions{display:flex;gap:7px}.icon{border:1px solid #294571;background:#091731;color:#fff;border-radius:10px;padding:10px 12px;cursor:pointer}
+.menu{display:none}.ticker{background:linear-gradient(90deg,#780010,#e31b35 45%,#76000e);box-shadow:0 5px 25px #f11a2c33}.tickerin{height:40px;display:flex;align-items:center;overflow:hidden}.breaking{background:#fff;color:#b90018;font:800 11px Oswald,sans-serif;padding:6px 10px;border-radius:6px;margin-right:13px;white-space:nowrap}.ticker-track{display:flex;gap:45px;white-space:nowrap;animation:ticker 28s linear infinite;font-size:12px;font-weight:800}@keyframes ticker{to{transform:translateX(-50%)}}
+.hero{padding:25px 0}.hero-grid{display:grid;grid-template-columns:2fr 1fr;gap:20px;perspective:1400px}.hero-card,.panel,.news-card,.ad,.story-card{border:1px solid #294571;background:linear-gradient(145deg,#101d3c,#070d20);box-shadow:0 20px 60px #0009,inset 0 1px #fff1;border-radius:20px}
+.hero-card{height:500px;position:relative;overflow:hidden;transform:rotateX(1deg) rotateY(-1deg);transition:.4s}.hero-card:hover{transform:rotateX(0) rotateY(0) translateY(-5px)}.hero-image{position:absolute;inset:0;background-position:center;background-size:cover;background-color:#09152d}.hero-image:after{content:"";position:absolute;inset:0;background:linear-gradient(0deg,#02040deF,#0000 68%)}.hero-content{position:absolute;z-index:2;left:28px;right:28px;bottom:25px}.live{display:inline-block;background:#ff1835;padding:6px 10px;border-radius:7px;font:800 10px Oswald,sans-serif;box-shadow:0 0 22px #ff183566}.hero-content h1{font:700 39px/1.08 Oswald,sans-serif;margin:11px 0;max-width:850px}.hero-content p{color:#c0cee8;font-size:13px;max-width:750px}.read{display:inline-block;background:linear-gradient(135deg,#ff263e,#b80019);padding:11px 15px;border-radius:9px;font:800 12px Oswald,sans-serif;box-shadow:0 12px 30px #ff183744}
+.side{display:grid;grid-template-rows:1fr 1fr;gap:20px}.panel{padding:18px;overflow:hidden}.ptitle{display:flex;justify-content:space-between;align-items:center;border-bottom:1px solid #243a63;padding-bottom:10px;margin-bottom:5px}.ptitle h2{font:700 18px Oswald;margin:0}.ptitle span{font:700 10px Oswald;color:#ff4054}.row{display:grid;grid-template-columns:90px 1fr;gap:10px;padding:11px 0;border-bottom:1px solid #1b2c4b}.row img{width:90px;height:64px;object-fit:cover;border-radius:9px}.row h3{font:700 13px/1.3 Oswald;margin:0 0 6px}.muted{font-size:10px;color:#8195ba}.weather{display:flex;justify-content:space-between;align-items:center}.temp{font:800 44px Oswald}.wicon{font-size:46px;filter:drop-shadow(0 0 15px #00bfff77)}.forecast{display:grid;grid-template-columns:repeat(4,1fr);gap:6px;margin-top:15px}.forecast div{background:#07142c;border:1px solid #20375e;border-radius:9px;padding:8px;text-align:center;font-size:10px;color:#aebddd}
+.section{padding:10px 0 32px}.section-title{display:flex;justify-content:space-between;align-items:end;border-bottom:1px solid #294571;margin-bottom:16px}.section-title h2{font:700 23px Oswald;margin:0 0 -1px;padding-bottom:9px;border-bottom:4px solid var(--red)}.more{font:700 11px Oswald;color:#45a9ff}
+.news-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:16px}.news-card{overflow:hidden;cursor:pointer;transition:.3s;transform-style:preserve-3d}.news-card:hover{transform:translateY(-8px) rotateX(2deg) rotateY(-2deg);box-shadow:0 28px 60px #000b,0 0 25px #087dff18}.thumb{width:100%;height:170px;object-fit:cover;display:block;background:#09152d}.body{padding:14px}.tag{font:700 10px Oswald;color:#ff4054;text-transform:uppercase}.body h3{font:700 17px/1.25 Oswald;margin:7px 0}.share-btn{display:inline-block;margin-top:8px;color:#65b8ff;font:700 11px Oswald}
+.ad{height:95px;display:grid;place-items:center;color:#60749b;letter-spacing:2px;font:11px Oswald;margin:0 0 28px}.stories{display:flex;gap:16px;overflow:auto;padding:5px 2px 15px}.story-card{min-width:115px;text-align:center;padding:10px}.story-card img{width:75px;height:75px;border-radius:50%;object-fit:cover;border:3px solid #ff2740;box-shadow:0 0 18px #ff183544}.story-card div{font:700 11px Oswald;margin-top:7px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.market-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:10px}.market-item{padding:14px;background:#07142b;border:1px solid #20375e;border-radius:11px;display:flex;justify-content:space-between;font:700 12px Oswald}.up{color:#31df91}.down{color:#ff5266}
+footer{background:#02050d;border-top:1px solid #1d345b;padding:35px 0 20px;margin-top:10px}.foot{display:grid;grid-template-columns:2fr 1fr 1fr 1fr;gap:30px}.foot h3{font:700 16px Oswald;margin:0 0 10px}.foot p,.foot a{color:#91a4c7;font-size:11px;line-height:1.8}.foot a{display:block}.copy{border-top:1px solid #172640;margin-top:22px;padding-top:14px;color:#607495;font-size:10px}
+.search-panel{display:none;padding:10px 0}.search-panel.open{display:block}.search-panel input{width:100%;padding:13px 15px;border-radius:11px;border:1px solid #294571;background:#07142b;color:#fff;outline:none}
+@media(max-width:1100px){nav{display:none}.menu{display:block}.hero-grid{grid-template-columns:1fr}.side{grid-template-columns:1fr 1fr;grid-template-rows:auto}.news-grid{grid-template-columns:repeat(2,1fr)}.foot{grid-template-columns:1fr 1fr}}
+@media(max-width:600px){.wrap{padding:0 12px}.head{height:70px}.logo{font-size:20px}.logo img{width:42px;height:42px}.tagline{display:none}.hero-card{height:430px}.hero-content h1{font-size:29px}.side{grid-template-columns:1fr}.news-grid{grid-template-columns:1fr 1fr}.thumb{height:135px}.body h3{font-size:15px}.foot{grid-template-columns:1fr}.market-grid{grid-template-columns:1fr 1fr}.topin{font-size:9px}}
 </style>
 </head>
 <body>
+<div class="top"><div class="wrap topin"><span id="dateNow"></span><span>TRUSTED NEWS • FAST UPDATES • 24×7</span></div></div>
+<header><div class="wrap head">
+<button class="icon menu" onclick="document.getElementById('nav').classList.toggle('open')">☰</button>
+<a class="logo" href="#" onclick="logoClick();return false;"><img src="1000678471.png" alt="Headline News 24×7"><span>HEADLINE <b>NEWS</b> 24×7</span></a>
+<span class="tagline">THE DIGITAL NEWS NETWORK</span>
+<nav id="nav"><a class="active" href="#" onclick="loadNews('News',this)">NEWS</a><a href="#" onclick="loadNews('Stocks',this)">STOCKS</a><a href="#" onclick="loadNews('IPO',this)">IPO</a><a href="#weatherBox">WEATHER</a><a href="#marketBox">MARKET</a><a href="about-us.html">ABOUT</a></nav>
+<div class="actions"><button class="icon" onclick="toggleSearch()">⌕</button><button class="icon" onclick="location.href='admin.html'">⚙</button></div>
+</div></header>
+<div class="search-panel wrap" id="searchPanel"><input id="searchInput" oninput="filterSearch()" placeholder="Search latest news..."></div>
+<div class="ticker"><div class="wrap tickerin"><span class="breaking">● BREAKING NEWS</span><div class="ticker-track" id="tickerTrack"><span>Loading latest updates...</span></div></div></div>
 
-  <!-- LIVE TICKER -->
-  <div class="ticker-wrap">
-    <div class="ticker-tag">● LIVE</div>
-    <div class="ticker-track" id="tickerTrack">
-      <div class="ticker-item mono">Loading...</div>
-    </div>
-  </div>
+<main class="wrap hero"><div class="hero-grid">
+<article class="hero-card" id="heroCard"><div class="hero-image" id="heroImage"></div><div class="hero-content"><span class="live">🔴 LIVE UPDATE</span><h1 id="heroTitle">Loading latest headline...</h1><p id="heroSummary">Latest stories from Headline News 24×7.</p><a class="read" id="heroLink" href="#">READ FULL STORY →</a></div></article>
+<div class="side">
+<section class="panel"><div class="ptitle"><h2>🔥 TOP STORIES</h2><span>LIVE</span></div><div id="topStories"><div class="row"><div></div><div class="muted">Loading...</div></div></div></section>
+<section class="panel" id="weatherBox"><div class="ptitle"><h2>☀️ WEATHER</h2><span>GUJARAT</span></div><div class="weather"><div><div class="temp" id="temp">--°</div><span class="muted" id="condition">Select city below</span></div><div class="wicon">🌤️</div></div><div class="forecast"><div>Ahmedabad<br><b>Weather</b></div><div>Surat<br><b>Weather</b></div><div>Rajkot<br><b>Weather</b></div><div>Deesa<br><b>Weather</b></div></div><select id="citySelect" onchange="fetchWeatherData()" style="margin-top:12px;width:100%;padding:9px;border-radius:9px"><option>Ahmedabad</option><option>Surat</option><option>Rajkot</option><option>Deesa</option></select></section>
+</div></div></main>
 
-  <!-- NAV -->
-  <div class="navbar">
-    <div class="nav-inner">
-      <div class="brand" onclick="logoClick()">
-        <img src="1000678471.png" alt="Headline News 24×7 logo" style="width:38px;height:38px;border-radius:8px;object-fit:cover;flex:0 0 auto;">
-        <div class="brand-text">
-          <div class="display">Headline News</div>
-          <span>24×7 GUJARAT</span>
-        </div>
-      </div>
-      <div class="icon-btn" onclick="toggleSearch()" aria-label="Search">
-        <svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round"><circle cx="11" cy="11" r="7"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
-      </div>
-    </div>
+<div class="wrap"><div class="ad">ADVERTISEMENT</div></div>
+<section class="wrap section"><div class="section-title"><h2>⭕ WEB STORIES</h2><a class="more" href="#">VIEW ALL →</a></div><div class="stories" id="storiesRail"><span class="muted">Loading stories...</span></div></section>
 
-    <div class="search-panel" id="searchPanel">
-      <input type="text" id="searchInput" placeholder="Search news..." oninput="filterSearch()">
-    </div>
+<section class="wrap section" id="marketBox"><div class="section-title"><h2>📈 LIVE MARKET</h2><a class="more" href="#" onclick="fetchMarketData();return false">REFRESH →</a></div><div class="market-grid" id="marketResult"><div class="market-item">Loading market...</div></div></section>
 
-    <div class="category-row" id="categoryRow">
-      <button class="cat-pill active" data-cat="News" onclick="loadNews('News',this)">News</button>
-      <button class="cat-pill" data-cat="Stocks" onclick="loadNews('Stocks',this)">Stocks</button>
-      <button class="cat-pill" data-cat="IPO" onclick="loadNews('IPO',this)">IPO</button>
-      <button class="cat-pill" onclick="showSection('weatherContainer',this)">Weather</button>
-      <button class="cat-pill" onclick="showSection('marketContainer',this)">Market Rates</button>
-    </div>
-  </div>
+<section class="wrap section" id="newsSection"><div class="section-title"><h2 id="feedTitle">LATEST NEWS</h2><span class="more" id="feedCount"></span></div><div class="news-grid" id="newsContainer"><div class="muted">Loading news...</div></div></section>
 
-  <!-- WEB STORIES -->
-  <div class="stories-rail" id="storiesRail">
-    <div class="stories-empty">Loading web stories...</div>
-  </div>
+<footer><div class="wrap foot"><div><h3>HEADLINE NEWS 24×7</h3><p>Fast, reliable and premium digital news from Gujarat and beyond. News, Stocks, IPO and live updates in one place.</p></div><div><h3>SECTIONS</h3><a href="#" onclick="loadNews('News');return false">News</a><a href="#" onclick="loadNews('Stocks');return false">Stocks</a><a href="#" onclick="loadNews('IPO');return false">IPO</a></div><div><h3>COMPANY</h3><a href="about-us.html">About Us</a><a href="contact-us.html">Contact</a><a href="privacy-policy.html">Privacy Policy</a><a href="disclaimer.html">Disclaimer</a></div><div><h3>CONNECT</h3><a href="#">Facebook</a><a href="#">Instagram</a><a href="#">YouTube</a><a href="#">X / Twitter</a></div></div><div class="wrap copy">© <span id="year"></span> Headline News 24×7 — Deesa, Gujarat</div></footer>
 
-  <!-- WEATHER / MARKET PANEL -->
-  <div id="mainPanel" class="main-panel">
-    <div id="weatherContainer" style="display:none;">
-      <h3 style="font-size:15px;color:var(--ink);">Select a district/town in Gujarat</h3>
-      <select id="citySelect" onchange="fetchWeatherData()">
-        <option value="Ahmedabad">Ahmedabad</option>
-        <option value="Surat">Surat</option>
-        <option value="Rajkot">Rajkot</option>
-        <option value="Deesa">Deesa</option>
-      </select>
-      <div id="weatherResult" class="info-box">Select a city...</div>
-    </div>
-
-    <div id="marketContainer" style="display:none;">
-      <h3 style="font-size:15px;color:var(--ink);">Live Market Rates</h3>
-      <div id="marketResult">Loading...</div>
-    </div>
-  </div>
-
-  <!-- NEWS FEED -->
-  <div class="feed-header">
-    <h2 id="feedTitle">News</h2>
-    <div class="right">
-      <span id="feedCount"></span>
-      <div class="view-toggle">
-        <button id="gridBtn" class="active" onclick="setView('grid')" aria-label="Grid view">
-          <svg viewBox="0 0 24 24" fill="none" stroke-width="2"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg>
-        </button>
-        <button id="listBtn" onclick="setView('list')" aria-label="List view">
-          <svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round"><line x1="4" y1="6" x2="20" y2="6"/><line x1="4" y1="12" x2="20" y2="12"/><line x1="4" y1="18" x2="20" y2="18"/></svg>
-        </button>
-      </div>
-    </div>
-  </div>
-  <div id="newsContainer" class="grid-view"></div>
-
-  <footer>
-    <div style="display:flex;flex-wrap:wrap;justify-content:center;gap:14px;margin-bottom:14px;">
-      <a href="about-us.html" style="color:var(--ink);font-weight:700;text-decoration:none;font-size:12px;">About Us</a>
-      <a href="contact-us.html" style="color:var(--ink);font-weight:700;text-decoration:none;font-size:12px;">Contact Us</a>
-      <a href="privacy-policy.html" style="color:var(--ink);font-weight:700;text-decoration:none;font-size:12px;">Privacy Policy</a>
-      <a href="terms-and-conditions.html" style="color:var(--ink);font-weight:700;text-decoration:none;font-size:12px;">Terms &amp; Conditions</a>
-      <a href="disclaimer.html" style="color:var(--ink);font-weight:700;text-decoration:none;font-size:12px;">Disclaimer</a>
-    </div>
-    © <span id="year"></span> Headline News 24×7 — Deesa, Gujarat
-  </footer>
-
-  <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-firestore.js"></script>
-
-  <script>
-    document.getElementById('year').textContent = new Date().getFullYear();
-
-    const firebaseConfig = { apiKey: "AIzaSyAOTuJcjYGPld5wZYVPHK0jpXKAh561lVU", authDomain: "news-akkshu.firebaseapp.com", projectId: "news-akkshu", storageBucket: "news-akkshu.firebasestorage.app", messagingSenderId: "735024392453", appId: "1:735024392453:web:30f8a1f0832ff36b1fef6c" };
-    firebase.initializeApp(firebaseConfig);
-    const db = firebase.firestore();
-
-    const CAT_LABELS = { News: 'News', Stocks: 'Stocks', IPO: 'IPO' };
-    let currentCat = 'News';
-    let currentDocs = [];
-    let allDocs = [];
-    let unsubscribeNews = null;
-
-    function docSection(d) {
-      return d.section === 'Stocks' || d.section === 'IPO' ? d.section : 'News';
-    }
-
-    function showSection(id, btn) {
-      setActivePill(btn);
-      document.getElementById('mainPanel').style.display = 'block';
-      document.getElementById('weatherContainer').style.display = (id === 'weatherContainer') ? 'block' : 'none';
-      document.getElementById('marketContainer').style.display = (id === 'marketContainer') ? 'block' : 'none';
-      document.getElementById('newsContainer').style.display = 'none';
-      document.getElementById('feedTitle').parentElement.style.display = 'none';
-      if (id === 'marketContainer') fetchMarketData();
-      if (id === 'weatherContainer') fetchWeatherData();
-    }
-
-    function setActivePill(btn) {
-      document.querySelectorAll('.cat-pill').forEach(b => b.classList.remove('active'));
-      if (btn) btn.classList.add('active');
-    }
-
-    function loadNews(cat, btn) {
-      currentCat = cat;
-      setActivePill(btn);
-      document.getElementById('mainPanel').style.display = 'none';
-      document.getElementById('newsContainer').style.display = 'block';
-      document.getElementById('feedTitle').parentElement.style.display = 'flex';
-      document.getElementById('feedTitle').textContent = CAT_LABELS[cat] || cat;
-      document.getElementById('searchInput').value = '';
-
-      applyCategoryFilter();
-
-      if (unsubscribeNews) return;
-      unsubscribeNews = db.collection("allNews")
-        .orderBy("timestamp", "desc")
-        .limit(300)
-        .onSnapshot(s => {
-          allDocs = [];
-          s.forEach(doc => allDocs.push({ id: doc.id, ...doc.data() }));
-          applyCategoryFilter();
-        }, err => {
-          document.getElementById('newsContainer').innerHTML =
-            `<div class="empty-feed">Could not load data. Check Firestore rules.</div>`;
-        });
-    }
-
-    function applyCategoryFilter() {
-      currentDocs = allDocs.filter(d => docSection(d) === currentCat);
-      renderNews(currentDocs);
-    }
-
-    function renderNews(docs) {
-      const c = document.getElementById('newsContainer');
-      document.getElementById('feedCount').textContent = docs.length ? docs.length + ' articles' : '';
-      if (!docs.length) {
-        c.innerHTML = `<div class="empty-feed">No news available right now.</div>`;
-        return;
-      }
-      const catClass = currentCat === 'Stocks' ? 'stocks' : (currentCat === 'IPO' ? 'ipo' : '');
-      const placeholderImg = 'data:image/svg+xml;utf8,' + encodeURIComponent(
-        `<svg xmlns="http://www.w3.org/2000/svg" width="200" height="120"><rect width="200" height="120" fill="%23F6F4EC"/></svg>`
-      );
-      c.innerHTML = docs.map(d => {
-        const img = d.image || d.imageUrl || '';
-        return `
-        <div class="news-card ${catClass}" onclick="window.location.href='details.html?id=${d.id}'">
-          <img class="thumb" src="${img || placeholderImg}" alt="" loading="lazy" onerror="this.src='${placeholderImg}'">
-          <div class="body">
-            <span class="tag">${CAT_LABELS[currentCat] || currentCat}${d.videoUrl ? ' · ▶ Video' : ''}${d.externalLink ? ' · ↗ Link' : ''}</span>
-            <h3>${d.heading || ''}</h3>
-            <div class="share-btn">Read &amp; Share ➔</div>
-          </div>
-        </div>`;
-      }).join('');
-    }
-
-    function setView(mode) {
-      const c = document.getElementById('newsContainer');
-      c.classList.toggle('grid-view', mode === 'grid');
-      document.getElementById('gridBtn').classList.toggle('active', mode === 'grid');
-      document.getElementById('listBtn').classList.toggle('active', mode === 'list');
-      localStorage.setItem('hn_view', mode);
-    }
-
-    function filterSearch() {
-      const q = document.getElementById('searchInput').value.trim().toLowerCase();
-      if (!q) { renderNews(currentDocs); return; }
-      renderNews(currentDocs.filter(d => (d.heading || '').toLowerCase().includes(q)));
-    }
-
-    function toggleSearch() {
-      document.getElementById('searchPanel').classList.toggle('open');
-      document.getElementById('searchInput').focus();
-    }
-
-    function loadStories() {
-      db.collection("allNews").where("webstory", "==", true)
-        .orderBy("timestamp", "desc").limit(12).onSnapshot(s => {
-          const rail = document.getElementById('storiesRail');
-          if (s.empty) { rail.innerHTML = `<div class="stories-empty">No web stories yet.</div>`; return; }
-          rail.innerHTML = '';
-          s.forEach(doc => {
-            const d = doc.data();
-            rail.innerHTML += `
-              <div class="story" onclick="window.location.href='story.html?id=${doc.id}'">
-                <div class="story-ring"><img src="${d.imageUrl || ''}" alt=""></div>
-                <div class="story-label">${(d.heading || '').slice(0, 14)}</div>
-              </div>`;
-          });
-        }, () => {
-          document.getElementById('storiesRail').innerHTML =
-            `<div class="stories-empty">Could not load stories.</div>`;
-        });
-    }
-
-    async function loadTicker() {
-      let items = [];
-      try {
-        const snap = await db.collection("allNews").orderBy("timestamp", "desc").limit(6).get();
-        snap.forEach(doc => items.push(`<div class="ticker-item">📰 ${doc.data().heading}</div>`));
-      } catch (e) {}
-      try {
-        const res = await fetch(`https://api.twelvedata.com/quote?symbol=^BSESN,^NSEI,GOLD,SILVER,BTC/USD&apikey=89dc6593e9fb4ddf9071da2b5d9db4f0`);
-        const data = await res.json();
-        for (let key in data) {
-          const s = data[key];
-          if (!s || !s.close) continue;
-          const price = parseFloat(s.close).toFixed(2);
-          const chg = parseFloat(s.percent_change || 0).toFixed(2);
-          const cls = chg >= 0 ? 'up' : 'down';
-          const label = key.replace('^BSESN', 'SENSEX').replace('^NSEI', 'NIFTY50');
-          items.push(`<div class="ticker-item"><span class="mono">${label}</span> ${price} <span class="${cls}">(${chg}%)</span></div>`);
-        }
-      } catch (e) {}
-      if (!items.length) items = [`<div class="ticker-item">Welcome to Headline News 24×7</div>`];
-      document.getElementById('tickerTrack').innerHTML = items.join('') + items.join('');
-    }
-
-    async function fetchWeatherData() {
-      const city = document.getElementById('citySelect').value;
-      try {
-        const res = await fetch(`https://api.openweathermap.org/data/2.5/weather?q=${city}&units=metric&appid=c3d2062e4f2ab500d532b35b6b6d9059&lang=en`);
-        const data = await res.json();
-        document.getElementById('weatherResult').innerHTML = `
-          <div style="font-size:1.15em;font-weight:700;">Weather in ${city}</div>
-          <div style="margin-top:6px;">Temperature: ${data.main.temp}°C</div>
-          <div>Condition: ${data.weather[0].description}</div>`;
-      } catch (e) {
-        document.getElementById('weatherResult').innerHTML = 'Could not load weather data.';
-      }
-    }
-
-    async function fetchMarketData() {
-      try {
-        const res = await fetch(`https://api.twelvedata.com/quote?symbol=^BSESN,^NSEI,GOLD,SILVER,BTC/USD&apikey=89dc6593e9fb4ddf9071da2b5d9db4f0`);
-        const data = await res.json();
-        let html = "";
-        for (let key in data) {
-          const s = data[key];
-          const price = s.close ? parseFloat(s.close).toFixed(2) : "N/A";
-          const change = s.percent_change ? parseFloat(s.percent_change).toFixed(2) : "0.00";
-          html += `<div class="market-item"><span>${key.replace('^BSESN','SENSEX').replace('^NSEI','NIFTY50')}</span><span class="mono ${change >= 0 ? 'up' : 'down'}">${price} (${change}%)</span></div>`;
-        }
-        document.getElementById('marketResult').innerHTML = html;
-      } catch (e) {
-        document.getElementById('marketResult').innerHTML = "Could not load data.";
-      }
-    }
-
-    let clickCount = 0;
-    function logoClick() {
-      clickCount++;
-      if (clickCount >= 5) {
-        clickCount = 0;
-        let pass = prompt("Enter Admin Password:");
-        if (pass === "Akkshu@love") window.location.href = "admin.html";
-      }
-    }
-
-    window.onload = () => {
-      const savedView = localStorage.getItem('hn_view') || 'grid';
-      setView(savedView);
-      loadNews('News', document.querySelector('.cat-pill[data-cat="News"]'));
-      loadStories();
-      loadTicker();
-      setInterval(loadTicker, 90000);
-    };
-  </script>
-</body>
-</html>
+<script>
+const firebaseConfig={apiKey:"AIzaSyAOTuJcjYGPld5wZYVPHK0jpXKAh561lVU",authDomain:"news-akkshu.firebaseapp.com",projectId:"news-akkshu",storageBucket:"news-akkshu.firebasestorage.app",messagingSenderId:"735024392453",appId:"1:735024392453:web:30f8a1f0832ff36b1fef6c"};
+firebase.initializeApp(firebaseConfig);const db=firebase.firestore();
+const CAT_LABELS={News:"News",Stocks:"Stocks",IPO:"IPO"};let currentCat="News",allDocs=[],currentDocs=[],unsubscribeNews=null;
+function esc(s){return String(s||"").replace(/[&<>"']/g,m=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#039;"}[m]));}
+function docSection(d){return d.section==="Stocks"||d.section==="IPO"?d.section:"News";}
+function setActive(btn){document.querySelectorAll("nav a").forEach(a=>a.classList.remove("active"));if(btn)btn.classList.add("active");}
+function loadNews(cat,btn){currentCat=cat;setActive(btn);document.getElementById("feedTitle").textContent=CAT_LABELS[cat]||cat;applyCategoryFilter();if(unsubscribeNews)return;unsubscribeNews=db.collection("allNews").orderBy("timestamp","desc").limit(300).onSnapshot(s=>{allDocs=[];s.forEach(d=>allDocs.push({id:d.id,...d.data()}));applyCategoryFilter();renderHero();renderTop();},()=>{});}
+function applyCategoryFilter(){currentDocs=allDocs.filter(d=>docSection(d)===currentCat);renderNews(currentDocs);}
+function imgOf(d){return d.image||d.imageUrl||"https://images.unsplash.com/photo-1504711434969-e33886168f5c?auto=format&fit=crop&w=900&q=70";}
+function renderNews(docs){let c=document.getElementById("newsContainer");document.getElementById("feedCount").textContent=docs.length?docs.length+" articles":"";if(!docs.length){c.innerHTML='<div class="muted">No news available right now.</div>';return;}c.innerHTML=docs.map(d=>`<article class="news-card" onclick="location.href='details.html?id=${encodeURIComponent(d.id)}'"><img class="thumb" src="${esc(imgOf(d))}" alt="" loading="lazy"><div class="body"><span class="tag">${esc(CAT_LABELS[currentCat]||currentCat)}${d.videoUrl?" · ▶ VIDEO":""}${d.externalLink?" · ↗ LINK":""}</span><h3>${esc(d.heading)}</h3><div class="share-btn">READ & SHARE →</div></div></article>`).join("");}
+function renderHero(){let d=allDocs[0];if(!d)return;document.getElementById("heroImage").style.backgroundImage=`linear-gradient(0deg,#02040df0,#0000 68%),url("${imgOf(d).replace(/"/g,'&quot;')}")`;document.getElementById("heroTitle").textContent=d.heading||"Latest headline";document.getElementById("heroSummary").textContent=(d.details||d.description||"Latest news update from Headline News 24×7").slice(0,170);document.getElementById("heroLink").href="details.html?id="+encodeURIComponent(d.id);}
+function renderTop(){let docs=allDocs.slice(0,4);document.getElementById("topStories").innerHTML=docs.map(d=>`<div class="row" onclick="location.href='details.html?id=${encodeURIComponent(d.id)}'" style="cursor:pointer"><img src="${esc(imgOf(d))}" alt=""><div><h3>${esc(d.heading)}</h3><span class="muted">${d.section||"News"} • Latest</span></div></div>`).join("");}
+function filterSearch(){let q=document.getElementById("searchInput").value.trim().toLowerCase();renderNews(!q?currentDocs:currentDocs.filter(d=>(d.heading||"").toLowerCase().includes(q)||(d.details||"").toLowerCase().includes(q)));}
+function toggleSearch(){let p=document.getElementById("searchPanel");p.classList.toggle("open");if(p.classList.contains("open"))document.getElementById("searchInput").focus();}
+async function loadStories(){try{db.collection("allNews").where("webstory","==",true).orderBy("timestamp","desc").limit(12).onSnapshot(s=>{let r=document.getElementById("storiesRail");if(s.empty){r.innerHTML='<span class="muted">No web stories yet.</span>';return;}r.innerHTML="";s.forEach(doc=>{let d=doc.data();r.innerHTML+=`<div class="story-card" onclick="location.href='story.html?id=${doc.id}'"><img src="${esc(d.imageUrl||d.image||'')}" alt=""><div>${esc((d.heading||"Story").slice(0,18))}</div></div>`;});});}catch(e){}}
+async function loadTicker(){let items=[];try{let s=await db.collection("allNews").orderBy("timestamp","desc").limit(6).get();s.forEach(d=>items.push(`<span>📰 ${esc(d.data().heading)}</span>`));}catch(e){}try{let res=await fetch("https://api.twelvedata.com/quote?symbol=^BSESN,^NSEI,GOLD,SILVER,BTC/USD&apikey=89dc6593e9fb4ddf9071da2b5d9db4f0");let data=await res.json();for(let key in data){let s=data[key];if(!s||!s.close)continue;let p=parseFloat(s.close).toFixed(2),c=parseFloat(s.percent_change||0).toFixed(2);items.push(`<span>${esc(key.replace("^BSESN","SENSEX").replace("^NSEI","NIFTY50"))} ${p} <b class="${c>=0?"up":"down"}">(${c}%)</b></span>`);}}catch(e){}if(!items.length)items=["<span>Welcome to Headline News 24×7</span>"];document.getElementById("tickerTrack").innerHTML=items.concat(items).join(" • ");}
+async function fetchWeatherData(){let city=document.getElementById("citySelect").value;try{let r=await fetch(`https://api.openweathermap.org/data/2.5/weather?q=${encodeURIComponent(city)}&units=metric&appid=c3d2062e4f2ab500d532b35b6b6d9059&lang=en`),d=await r.json();document.getElementById("temp").textContent=Math.round(d.main.temp)+"°";document.getElementById("condition").textContent=d.weather?.[0]?.description||"";}catch(e){document.getElementById("condition").textContent="Weather unavailable";}}
+async function fetchMarketData(){let box=document.getElementById("marketResult");try{let r=await fetch("https://api.twelvedata.com/quote?symbol=^BSESN,^NSEI,GOLD,SILVER,BTC/USD&apikey=89dc6593e9fb4ddf9071da2b5d9db4f"),data=await r.json();let h="";for(let k in data){let s=data[k];if(!s||!s.close)continue;let c=parseFloat(s.percent_change||0).toFixed(2);h+=`<div class="market-item"><span>${esc(k.replace("^BSESN","SENSEX").replace("^NSEI","NIFTY50"))}</span><b class="${c>=0?"up":"down"}">${parseFloat(s.close).toFixed(2)} (${c}%)</b></div>`;}box.innerHTML=h||"Could not load data.";}catch(e){box.innerHTML="<div class='market-item'>Market data unavailable</div>";}}
+let clickCount=0;function logoClick(){clickCount++;if(clickCount>=5){clickCount=0;let pass=prompt("Enter Admin Password:");if(pass==="Akkshu@love")location.href="admin.html";}}
+document.getElementById("dateNow").textContent=new Date().toLocaleDateString("en-IN",{weekday:"long",day:"2-digit",month:"long",year:"numeric"});document.getElementById("year").textContent=new Date().getFullYear();
+window.addEventListener("load",()=>{loadNews("News",document.querySelector("nav a"));loadStories();loadTicker();fetchMarketData();fetchWeatherData();setInterval(loadTicker,90000);});
+</script>
+</body></html>
