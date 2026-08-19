@@ -58,15 +58,26 @@
   }
   .news-item .meta{flex:1;min-width:0;}
   .news-item .heading{font-weight:700;font-size:14px;display:block;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
-  .news-item .tags{display:flex;gap:6px;margin-top:5px;flex-wrap:wrap;}
+  .news-item .tags{display:flex;gap:6px;margin-top:5px;flex-wrap:wrap;align-items:center;}
   .news-item .tag{
     font-family:'JetBrains Mono',monospace;font-size:10px;padding:2px 7px;border-radius:5px;
     background:#fff;border:1px solid var(--line);color:var(--steel);
   }
   .news-item .tag.section{color:var(--ink);border-color:var(--ink);font-weight:700;}
+  .news-item .tag.views{background:var(--green);color:#fff;border-color:var(--green);font-weight:700;}
   .news-item .actions{display:flex;gap:6px;flex:0 0 auto;}
 
   .empty-list{text-align:center;color:var(--steel);font-size:13px;padding:20px;}
+
+  .stats-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:16px;}
+  .stat-card{background:var(--paper);padding:16px;border-radius:10px;border-left:4px solid var(--ink);}
+  .stat-label{font-family:'Oswald',sans-serif;font-size:11px;text-transform:uppercase;letter-spacing:.06em;color:var(--steel);margin-bottom:8px;}
+  .stat-value{font-size:28px;font-weight:700;color:var(--ink);font-family:'JetBrains Mono',monospace;}
+
+  .tabs{display:flex;gap:8px;margin-bottom:16px;border-bottom:2px solid var(--line);padding-bottom:12px;}
+  .tab-btn{background:none;border:none;padding:8px 12px;font-family:'Oswald',sans-serif;font-size:12px;
+    text-transform:uppercase;letter-spacing:.03em;color:var(--steel);cursor:pointer;border-bottom:3px solid transparent;margin-bottom:-12px;}
+  .tab-btn.active{color:var(--ink);border-bottom-color:var(--ink);}
 </style>
 </head>
 <body>
@@ -141,8 +152,25 @@
 </div>
 
 <div class="container">
-  <h3>Posted News</h3>
-  <div id="adminNewsList">Loading...</div>
+  <h3>📊 Analytics</h3>
+  <div class="stats-grid">
+    <div class="stat-card">
+      <div class="stat-label">Total Articles</div>
+      <div class="stat-value" id="totalArticles">0</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-label">Total Views</div>
+      <div class="stat-value" id="totalViews">0</div>
+    </div>
+  </div>
+
+  <div style="margin-top:20px;">
+    <div class="tabs">
+      <button class="tab-btn active" onclick="switchTab('all')">All Articles</button>
+      <button class="tab-btn" onclick="switchTab('trending')">🔥 Most Viewed</button>
+    </div>
+    <div id="adminNewsList"></div>
+  </div>
 </div>
 
 <script>
@@ -157,7 +185,17 @@
   firebase.initializeApp(firebaseConfig);
   const db = firebase.firestore();
 
+  let currentTab = 'all';
+  let allArticles = [];
+
   function esc(s) { return (s || '').replace(/'/g, "\\'").replace(/\n/g, '\\n'); }
+
+  function switchTab(tab) {
+    currentTab = tab;
+    document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+    event.target.classList.add('active');
+    renderNewsList();
+  }
 
   function saveNews() {
     const id = document.getElementById('editId').value;
@@ -173,6 +211,7 @@
       webstory: document.getElementById('webstory').checked,
       adOption: document.getElementById('adOption').value,
       adCount: document.getElementById('adCount').value,
+      viewCount: id ? null : 0,
       timestamp: firebase.firestore.FieldValue.serverTimestamp()
     };
 
@@ -207,19 +246,34 @@
     window.scrollTo(0, 0);
   }
 
-  db.collection("allNews").orderBy("timestamp", "desc").onSnapshot(snapshot => {
+  function renderNewsList() {
     const list = document.getElementById('adminNewsList');
-    if (snapshot.empty) { list.innerHTML = `<div class="empty-list">No news posted yet.</div>`; return; }
+    let toDisplay = [...allArticles];
+
+    if (currentTab === 'trending') {
+      toDisplay.sort((a, b) => (b.viewCount || 0) - (a.viewCount || 0));
+      toDisplay = toDisplay.slice(0, 10);
+    } else {
+      toDisplay.sort((a, b) => (b.timestamp || 0) - (a.timestamp || 0));
+    }
+
+    if (toDisplay.length === 0) {
+      list.innerHTML = `<div class="empty-list">No articles found.</div>`;
+      return;
+    }
+
     list.innerHTML = '';
-    snapshot.forEach(doc => {
-      const d = doc.data();
+    toDisplay.forEach(doc => {
+      const d = doc.data || doc;
       const section = d.section || 'News';
+      const viewCount = d.viewCount || 0;
       list.innerHTML += `
         <div class="news-item">
           <div class="meta">
             <span class="heading">${d.heading || '(untitled)'}</span>
             <div class="tags">
               <span class="tag section">${section}</span>
+              <span class="tag views">👁 ${viewCount}</span>
               ${d.videoUrl ? '<span class="tag">▶ Video</span>' : ''}
               ${d.externalLink ? '<span class="tag">↗ Link</span>' : ''}
               ${d.webstory ? '<span class="tag">Story</span>' : ''}
@@ -231,35 +285,24 @@
           </div>
         </div>`;
     });
-  });
-</script>
-</body>
-</html>
-        document.getElementById('image').value = image;
-        document.getElementById('details').value = details;
-        document.getElementById('category').value = category;
-        document.getElementById('adOption').value = adOption;
-        document.getElementById('adCount').value = adCount;
-        document.getElementById('formTitle').innerText = "Edit News";
-        document.getElementById('actionBtn').innerText = "Update News";
-        window.scrollTo(0,0);
-    }
+  }
 
-    db.collection("allNews").orderBy("timestamp", "desc").onSnapshot(snapshot => {
-        const list = document.getElementById('adminNewsList'); 
-        list.innerHTML = '';
-        snapshot.forEach(doc => {
-            const d = doc.data();
-            list.innerHTML += `
-                <div class="news-item">
-                    <span>${d.heading}</span>
-                    <div style="display:flex; gap:5px;">
-                        <button class="btn-edit" onclick="editNews('${doc.id}', '${d.heading.replace(/'/g, "\\'")}', '${d.image}', '${d.details.replace(/\n/g, '\\n').replace(/'/g, "\\'")}', '${d.category}', '${d.adOption}', '${d.adCount}')">Edit</button>
-                        <button class="btn-del" onclick="deleteNews('${doc.id}')">Delete</button>
-                    </div>
-                </div>`;
-        });
+  function updateAnalytics() {
+    const totalArticles = allArticles.length;
+    const totalViews = allArticles.reduce((sum, doc) => sum + (doc.viewCount || 0), 0);
+    
+    document.getElementById('totalArticles').textContent = totalArticles;
+    document.getElementById('totalViews').textContent = totalViews.toLocaleString();
+  }
+
+  db.collection("allNews").onSnapshot(snapshot => {
+    allArticles = [];
+    snapshot.forEach(doc => {
+      allArticles.push({ id: doc.id, viewCount: doc.data().viewCount || 0, data: doc.data(), timestamp: doc.data().timestamp?.seconds || 0 });
     });
+    updateAnalytics();
+    renderNewsList();
+  });
 </script>
 </body>
 </html>
