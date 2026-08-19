@@ -120,6 +120,12 @@
   .trending-card-meta{font-size:9px;color:var(--steel);margin-top:auto;padding-top:4px;}
 
   .trending-loading{text-align:center;padding:20px;color:var(--steel);font-size:13px;}
+
+  .view-badge{
+    display:inline-flex;align-items:center;gap:6px;font-family:'JetBrains Mono',monospace;
+    font-size:12px;color:var(--steel);background:var(--paper);padding:6px 12px;
+    border-radius:6px;margin-bottom:10px;
+  }
 </style>
 </head>
 <body>
@@ -211,13 +217,24 @@
       return `<div class="video-embed"><video src="${url}" controls></video></div>`;
     }
 
+    // Increment view count - called when article loads
+    async function incrementViewCount(articleId) {
+      try {
+        await db.collection("allNews").doc(articleId).update({
+          viewCount: firebase.firestore.FieldValue.increment(1)
+        });
+      } catch (e) {
+        console.error('Error incrementing view count:', e);
+      }
+    }
+
     async function loadTrendingNews() {
       try {
         const trendingContainer = document.getElementById('trendingContainer');
         
-        // Fetch 10 trending articles (most recent)
+        // Fetch 10 trending articles sorted by view count (most viewed first)
         const snap = await db.collection('allNews')
-          .orderBy('timestamp', 'desc')
+          .orderBy('viewCount', 'desc')
           .limit(10)
           .get();
         
@@ -239,7 +256,7 @@
               <img src="${img}" alt="" onerror="this.src='data:image/svg+xml;utf8,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 width=%22160%22 height=%2290%22%3E%3Crect fill=%22%23E4E0D4%22/%3E%3C/svg%3E'" loading="lazy">
               <div class="trending-card-text">
                 <div class="trending-card-title">${escapeHtml(article.heading || '')}</div>
-                <div class="trending-card-meta">${article.section || 'News'}</div>
+                <div class="trending-card-meta">👁 ${article.viewCount || 0} views</div>
               </div>
             </a>`;
         });
@@ -263,6 +280,7 @@
         const d = doc.data();
         const section = d.section || 'News';
         const img = d.image || d.imageUrl || '';
+        const viewCount = d.viewCount || 0;
         const paras = paragraphize(d.details);
         // Insert the link/tweet embed after the first paragraph so it sits inside the article, not up top.
         let bodyHtml = '';
@@ -280,6 +298,7 @@
           <div class="article-body">
             <span class="tag">${section}</span>
             <h1>${escapeHtml(d.heading)}</h1>
+            <div class="view-badge">👁 ${viewCount} views</div>
             <div class="meta-row">${d.timestamp && d.timestamp.toDate ? d.timestamp.toDate().toLocaleString() : ''}</div>
             <div class="article-text">${bodyHtml || '<p>Full details coming soon.</p>'}</div>
             <div class="share-row">
@@ -318,6 +337,9 @@
         }
 
         document.getElementById('footerYear').textContent = new Date().getFullYear();
+
+        // Increment view count
+        incrementViewCount(id);
 
         // Load trending news after article loads
         loadTrendingNews();
