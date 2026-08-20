@@ -9,6 +9,7 @@
 <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-4298712782505661" crossorigin="anonymous"></script>
 <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
 <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-firestore.js"></script>
+<script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-auth.js"></script>
 <style>
   :root{
     --ink:#0B1F3A; --ink-2:#122B52; --paper:#F6F4EC; --card:#FFFFFF;
@@ -147,6 +148,26 @@ main#mainContent,.article-body,.trending-section,.footer-section{color:#f7fbff!i
 .view-badge{background:#07142b!important;border:1px solid #294571!important;}
 .link-card{color:#f7fbff!important;background:#0a1730!important;border-color:#294571!important;}
 .trending-card{background:#0a1730!important;border-color:#294571!important;}
+
+/* LIKE + COMMENT SYSTEM */
+.engagement{margin-top:24px;padding:18px;border:1px solid #294571;border-radius:14px;background:linear-gradient(145deg,#0c1935,#071025);box-shadow:0 15px 35px #0007}
+.engagement-actions{display:flex;gap:10px;align-items:center;flex-wrap:wrap}
+.like-btn{border:1px solid #ff3d55;background:#101d3a;color:#fff;border-radius:10px;padding:11px 16px;font-weight:800;cursor:pointer;transition:.2s}
+.like-btn:hover{transform:translateY(-2px);box-shadow:0 8px 22px #ff173433}
+.like-btn.liked{background:#ff1734;border-color:#ff7382}
+.like-count{font-weight:800;color:#fff}
+.comment-box{margin-top:18px;padding-top:16px;border-top:1px solid #294571}
+.comment-box h3{margin:0 0 12px;color:#fff;font-size:16px}
+.comment-form{display:grid;gap:9px}
+.comment-form input,.comment-form textarea{width:100%;border:1px solid #294571;border-radius:9px;padding:11px;background:#071329;color:#fff;outline:none}
+.comment-form textarea{min-height:90px;resize:vertical}
+.comment-form button{border:0;background:linear-gradient(135deg,#ff263c,#b90019);color:#fff;padding:11px 16px;border-radius:9px;font-weight:900;cursor:pointer}
+.comments-list{margin-top:15px;display:grid;gap:9px}
+.comment{padding:12px;border:1px solid #243c68;border-radius:10px;background:#08152e}
+.comment strong{color:#fff;font-size:13px}.comment p{color:#c9d5ea;margin:5px 0 0;font-size:13px;line-height:1.5;white-space:pre-wrap}.comment small{color:#7f94b8;font-size:10px}
+.comment-empty{color:#8fa4c7;font-size:12px}
+.auth-note{color:#8fa4c7;font-size:10px;margin-top:7px}
+
 </style>
 </head>
 <body>
@@ -174,6 +195,11 @@ main#mainContent,.article-body,.trending-section,.footer-section{color:#f7fbff!i
     };
     firebase.initializeApp(firebaseConfig);
     const db = firebase.firestore();
+    const auth = firebase.auth();
+    let currentUser = null;
+    let articleIdForEngagement = null;
+    let likeUnsubscribe = null;
+    let commentsUnsubscribe = null;
 
     function getParam(name) {
       return new URLSearchParams(window.location.search).get(name);
@@ -290,6 +316,88 @@ main#mainContent,.article-body,.trending-section,.footer-section{color:#f7fbff!i
       }
     }
 
+
+    async function ensureAnonymousAuth() {
+      if (auth.currentUser) { currentUser = auth.currentUser; return currentUser; }
+      const cred = await auth.signInAnonymously();
+      currentUser = cred.user;
+      return currentUser;
+    }
+
+    function formatCommentTime(ts) {
+      try { return ts && ts.toDate ? ts.toDate().toLocaleString() : 'Just now'; } catch(e) { return 'Just now'; }
+    }
+
+    function renderComments(snapshot) {
+      const box = document.getElementById('commentsList');
+      const count = document.getElementById('commentCount');
+      if (!box || !count) return;
+      count.textContent = snapshot.size;
+      if (snapshot.empty) { box.innerHTML = '<div class="comment-empty">Abhi koi comment nahi hai. Pehla comment aap karo! 👇</div>'; return; }
+      box.innerHTML = snapshot.docs.map(doc => {
+        const c = doc.data();
+        return `<div class="comment"><strong>${escapeHtml(c.name || 'Reader')}</strong><small> • ${escapeHtml(formatCommentTime(c.timestamp))}</small><p>${escapeHtml(c.text || '')}</p></div>`;
+      }).join('');
+    }
+
+    async function setupEngagement(articleId) {
+      articleIdForEngagement = articleId;
+      try { await ensureAnonymousAuth(); } catch(e) { console.error('Anonymous auth failed', e); }
+      const likeRef = db.collection('allNews').doc(articleId).collection('likes');
+      const commentsRef = db.collection('allNews').doc(articleId).collection('comments');
+
+      if (likeUnsubscribe) likeUnsubscribe();
+      likeUnsubscribe = likeRef.onSnapshot(snap => {
+        const count = document.getElementById('likeCount');
+        const btn = document.getElementById('likeBtn');
+        if (count) count.textContent = snap.size;
+        if (btn && currentUser) {
+          const liked = snap.docs.some(d => d.id === currentUser.uid);
+          btn.classList.toggle('liked', liked);
+          btn.innerHTML = liked ? '❤️ Liked' : '🤍 Like';
+        }
+      }, err => console.error('Like listener error', err));
+
+      if (commentsUnsubscribe) commentsUnsubscribe();
+      commentsUnsubscribe = commentsRef.orderBy('timestamp','desc').limit(50).onSnapshot(renderComments, err => {
+        console.error('Comments listener error', err);
+        const box = document.getElementById('commentsList');
+        if (box) box.innerHTML = '<div class="comment-empty">Comments load nahi ho pa rahe.</div>';
+      });
+    }
+
+    async function toggleLike() {
+      if (!articleIdForEngagement) return;
+      try {
+        const user = await ensureAnonymousAuth();
+        const ref = db.collection('allNews').doc(articleIdForEngagement).collection('likes').doc(user.uid);
+        const snap = await ref.get();
+        if (snap.exists) await ref.delete();
+        else await ref.set({ uid:user.uid, timestamp: firebase.firestore.FieldValue.serverTimestamp() });
+      } catch(e) {
+        console.error(e); alert('Like nahi ho paya. Please try again.');
+      }
+    }
+
+    async function submitComment() {
+      const nameEl = document.getElementById('commentName');
+      const textEl = document.getElementById('commentText');
+      const btn = document.getElementById('commentSubmit');
+      const name = (nameEl.value || '').trim().slice(0,40) || 'Reader';
+      const text = (textEl.value || '').trim().slice(0,1000);
+      if (!text) { alert('Comment likho bhai 🙂'); return; }
+      btn.disabled = true; btn.textContent = 'Posting...';
+      try {
+        const user = await ensureAnonymousAuth();
+        await db.collection('allNews').doc(articleIdForEngagement).collection('comments').add({
+          uid:user.uid, name:name, text:text, timestamp:firebase.firestore.FieldValue.serverTimestamp()
+        });
+        textEl.value = '';
+      } catch(e) {
+        console.error(e); alert('Comment post nahi ho paya. Please try again.');
+      } finally { btn.disabled = false; btn.textContent = 'Comment Post Karein'; }
+    }
+
     async function loadArticle() {
       const id = getParam('id');
       const main = document.getElementById('mainContent');
@@ -326,6 +434,23 @@ main#mainContent,.article-body,.trending-section,.footer-section{color:#f7fbff!i
               <a class="share-btn whatsapp" href="https://wa.me/?text=${encodeURIComponent((d.heading || '') + ' ' + window.location.href)}" target="_blank" rel="noopener">Share on WhatsApp</a>
               <a class="share-btn" href="index.html">More News</a>
             </div>
+            <div class="engagement">
+              <div class="engagement-actions">
+                <button id="likeBtn" class="like-btn" onclick="toggleLike()">🤍 Like</button>
+                <span class="like-count">❤️ <span id="likeCount">0</span> Likes</span>
+                <span class="like-count">💬 <span id="commentCount">0</span> Comments</span>
+              </div>
+              <div class="comment-box">
+                <h3>💬 Comment Karein</h3>
+                <div class="comment-form">
+                  <input id="commentName" maxlength="40" placeholder="Aapka naam (optional)">
+                  <textarea id="commentText" maxlength="1000" placeholder="Apna comment likhiye..."></textarea>
+                  <button id="commentSubmit" onclick="submitComment()">Comment Post Karein</button>
+                </div>
+                <div class="auth-note">Aapka comment publicly dikh sakta hai. Password ki zarurat nahi hai.</div>
+                <div id="commentsList" class="comments-list"><div class="comment-empty">Comments load ho rahe hain...</div></div>
+              </div>
+            </div>
           </div>
           <div class="trending-section">
             <div class="trending-title">🔥 Trending Now</div>
@@ -361,6 +486,9 @@ main#mainContent,.article-body,.trending-section,.footer-section{color:#f7fbff!i
 
         // Increment view count
         incrementViewCount(id);
+
+        // Enable likes and comments for this article
+        setupEngagement(id);
 
         // Load trending news after article loads
         loadTrendingNews();
