@@ -3,13 +3,26 @@ service cloud.firestore {
   match /databases/{database}/documents {
     match /allNews/{newsId} {
       allow read: if true;
-      // Only authenticated Firebase users can create/delete/edit news.
-      allow create, delete: if request.auth != null;
-      allow update: if request.auth != null || (
+      // Admin accounts use email/password auth; anonymous readers cannot modify articles.
+      allow create, delete: if request.auth != null && request.auth.token.email != null;
+      allow update: if (request.auth != null && request.auth.token.email != null) || (
         request.auth == null &&
         request.resource.data.diff(resource.data).affectedKeys().hasOnly(['viewCount']) &&
         request.resource.data.viewCount == resource.data.viewCount + 1
       );
+
+      match /likes/{uid} {
+        allow read: if true;
+        allow create: if request.auth != null && request.auth.uid == uid;
+        allow delete: if request.auth != null && request.auth.uid == uid;
+        allow update: if false;
+      }
+
+      match /comments/{commentId} {
+        allow read: if true;
+        allow create: if request.auth != null && request.resource.data.uid == request.auth.uid;
+        allow update, delete: if false;
+      }
     }
   }
 }
